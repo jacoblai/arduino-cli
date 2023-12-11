@@ -18,7 +18,7 @@ package builder
 import (
 	"strings"
 
-	f "github.com/arduino/arduino-cli/internal/algorithms"
+	f "github.com/arduino/arduino-cli/patch/algorithms"
 	"github.com/arduino/go-paths-helper"
 	"github.com/pkg/errors"
 )

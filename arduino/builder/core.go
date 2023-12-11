@@ -24,8 +24,8 @@ import (
 
 	"github.com/arduino/arduino-cli/arduino/builder/cpp"
 	"github.com/arduino/arduino-cli/arduino/builder/internal/utils"
-	f "github.com/arduino/arduino-cli/internal/algorithms"
-	"github.com/arduino/arduino-cli/internal/buildcache"
+	f "github.com/arduino/arduino-cli/patch/algorithms"
+	"github.com/arduino/arduino-cli/patch/buildcache"
 	"github.com/arduino/go-paths-helper"
 	"github.com/pkg/errors"
 )

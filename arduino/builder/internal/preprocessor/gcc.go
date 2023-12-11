@@ -21,7 +21,7 @@ import (
 	"strings"
 
 	"github.com/arduino/arduino-cli/arduino/builder/cpp"
-	f "github.com/arduino/arduino-cli/internal/algorithms"
+	f "github.com/arduino/arduino-cli/patch/algorithms"
 	"github.com/arduino/go-paths-helper"
 	"github.com/arduino/go-properties-orderedmap"
 	"github.com/pkg/errors"

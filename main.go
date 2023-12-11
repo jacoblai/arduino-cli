@@ -16,18 +16,18 @@
 package main
 
 import (
+	"github.com/arduino/arduino-cli/patch/cli/daemon"
 	"os"
 
 	"github.com/arduino/arduino-cli/configuration"
 	"github.com/arduino/arduino-cli/i18n"
-	"github.com/arduino/arduino-cli/internal/cli"
-	"github.com/arduino/arduino-cli/internal/cli/feedback"
+	"github.com/arduino/arduino-cli/patch/cli/feedback"
 )
 
 func main() {
 	configuration.Settings = configuration.Init(configuration.FindConfigFileInArgs(os.Args))
 	i18n.Init(configuration.Settings.GetString("locale"))
-	arduinoCmd := cli.NewCommand()
+	arduinoCmd := daemon.NewCommand()
 	if err := arduinoCmd.Execute(); err != nil {
 		feedback.FatalError(err, feedback.ErrGeneric)
 	}
