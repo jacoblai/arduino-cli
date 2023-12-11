@@ -15,7 +15,7 @@
 
 package progress
 
-import rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+import rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 
 // Struct fixdoc
 type Struct struct {

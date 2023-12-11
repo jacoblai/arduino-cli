@@ -22,9 +22,9 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/arduino/arduino-cli/arduino/builder/internal/utils"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino/builder/internal/utils"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/pkg/errors"
 )
 

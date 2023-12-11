@@ -18,9 +18,9 @@ package arguments
 import (
 	"strings"
 
-	"github.com/arduino/arduino-cli/arduino"
-	"github.com/arduino/arduino-cli/patch/cli/feedback"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/arduino"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/spf13/cobra"
 )
 

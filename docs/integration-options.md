@@ -101,10 +101,10 @@ tracker] if you’ve got a use case that doesn’t fit one of the three pillars.
 [daemon mode]: commands/arduino-cli_daemon.md
 [grpc interface reference]: rpc/commands.md
 [grpc supported languages]: https://grpc.io/docs/languages/
-[arduino cli repository]: https://github.com/arduino/arduino-cli
-[grpc client example]: https://github.com/arduino/arduino-cli/blob/master/client_example
-[commands package]: https://github.com/arduino/arduino-cli/tree/master/commands
-[issue tracker]: https://github.com/arduino/arduino-cli/issues
+[arduino cli repository]: https://github.com/jacoblai/arduino-cli
+[grpc client example]: https://github.com/jacoblai/arduino-cli/blob/master/client_example
+[commands package]: https://github.com/jacoblai/arduino-cli/tree/master/commands
+[issue tracker]: https://github.com/jacoblai/arduino-cli/issues
 [contextual help screenshot]: img/CLI_contextual_help_screenshot.png
 [configuration methods screenshot]: img/CLI_configuration_methods_screenshot.png
 [json output screenshot]: img/CLI_JSON_output_screenshot.png

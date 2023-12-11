@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/arduino/arduino-cli/patch/cli/feedback"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback"
 )
 
 var validMap = map[string]reflect.Kind{

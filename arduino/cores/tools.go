@@ -19,9 +19,9 @@ import (
 	"regexp"
 	"runtime"
 
-	"github.com/arduino/arduino-cli/arduino/resources"
 	"github.com/arduino/go-paths-helper"
 	properties "github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino/resources"
 	semver "go.bug.st/relaxed-semver"
 )
 

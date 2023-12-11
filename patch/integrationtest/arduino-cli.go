@@ -29,7 +29,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/arduino/go-paths-helper"
 	"github.com/fatih/color"
 	"github.com/stretchr/testify/require"

@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/arduino/arduino-cli/arduino/libraries"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino/libraries"
 	easyjson "github.com/mailru/easyjson"
 	"github.com/stretchr/testify/require"
 	semver "go.bug.st/relaxed-semver"

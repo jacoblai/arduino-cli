@@ -28,8 +28,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/arduino/arduino-cli/i18n"
 	paths "github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/i18n"
 )
 
 var tr = i18n.Tr

@@ -23,8 +23,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/arduino/arduino-cli/patch/integrationtest"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/patch/integrationtest"
 	"github.com/stretchr/testify/require"
 )
 

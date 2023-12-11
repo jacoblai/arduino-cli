@@ -25,13 +25,13 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/arduino/arduino-cli/arduino/globals"
-	"github.com/arduino/arduino-cli/arduino/resources"
-	"github.com/arduino/arduino-cli/arduino/utils"
-	"github.com/arduino/arduino-cli/i18n"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	paths "github.com/arduino/go-paths-helper"
 	properties "github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino/globals"
+	"github.com/jacoblai/arduino-cli/arduino/resources"
+	"github.com/jacoblai/arduino-cli/arduino/utils"
+	"github.com/jacoblai/arduino-cli/i18n"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	semver "go.bug.st/relaxed-semver"
 )
 

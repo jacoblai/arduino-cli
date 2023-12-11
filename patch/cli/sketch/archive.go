@@ -20,10 +20,10 @@ import (
 	"fmt"
 	"os"
 
-	sk "github.com/arduino/arduino-cli/commands/sketch"
-	"github.com/arduino/arduino-cli/patch/cli/feedback"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/arduino/go-paths-helper"
+	sk "github.com/jacoblai/arduino-cli/commands/sketch"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

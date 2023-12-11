@@ -85,7 +85,7 @@ in your [`PATH`](https://en.wikipedia.org/wiki/PATH%5F%28variable%29) or add the
 
 ### Previous versions
 
-These are available from the "Assets" sections on the [releases page](https://github.com/arduino/arduino-cli/releases).
+These are available from the "Assets" sections on the [releases page](https://github.com/jacoblai/arduino-cli/releases).
 
 ### Nightly builds
 

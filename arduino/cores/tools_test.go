@@ -18,7 +18,7 @@ package cores
 import (
 	"testing"
 
-	"github.com/arduino/arduino-cli/arduino/resources"
+	"github.com/jacoblai/arduino-cli/arduino/resources"
 	"github.com/stretchr/testify/require"
 )
 

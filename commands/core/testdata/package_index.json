@@ -137,14 +137,14 @@
       "email": "test@example.com",
       "maintainer": "Arduino",
       "help": {
-        "online": "https://github.com/Arduino/arduino-cli"
+        "online": "https://github.com/jacoblai/arduino-cli"
       },
-      "websiteURL": "https://github.com/Arduino/arduino-cli",
+      "websiteURL": "https://github.com/jacoblai/arduino-cli",
       "platforms": [
         {
           "category": "Test",
           "help": {
-            "online": "https://github.com/Arduino/arduino-cli"
+            "online": "https://github.com/jacoblai/arduino-cli"
           },
           "url": "https://raw.githubusercontent.com/arduino/arduino-cli/master/test/testdata/core.zip",
           "checksum": "SHA-256:6a338cf4d6d501176a2d352c87a8d72ac7488b8c5b82cdf2a4e2cef630391092",

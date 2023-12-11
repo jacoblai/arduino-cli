@@ -18,9 +18,9 @@ package librariesindex
 import (
 	"sort"
 
-	"github.com/arduino/arduino-cli/arduino/libraries"
-	"github.com/arduino/arduino-cli/arduino/resources"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/arduino/libraries"
+	"github.com/jacoblai/arduino-cli/arduino/resources"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	semver "go.bug.st/relaxed-semver"
 )
 

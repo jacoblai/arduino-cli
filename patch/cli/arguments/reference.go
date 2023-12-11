@@ -19,10 +19,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/arduino/arduino-cli/arduino"
-	"github.com/arduino/arduino-cli/commands/core"
-	"github.com/arduino/arduino-cli/patch/cli/instance"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/arduino"
+	"github.com/jacoblai/arduino-cli/commands/core"
+	"github.com/jacoblai/arduino-cli/patch/cli/instance"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/sirupsen/logrus"
 )
 
@@ -57,7 +57,7 @@ func ParseReferences(args []string) ([]*Reference, error) {
 
 // ParseReference parses a string and returns a Reference object.
 // It tries to infer the platform the user is asking for.
-// To achieve that, it tries to use github.com/arduino/arduino-cli/commands/core.GetPlatform
+// To achieve that, it tries to use github.com/jacoblai/arduino-cli/commands/core.GetPlatform
 // Note that the Reference is returned rightaway if the arg inserted by the user matches perfectly one in the response of core.GetPlatform
 // A MultiplePlatformsError is returned if the platform searched by the user matches multiple platforms
 func ParseReference(arg string) (*Reference, error) {

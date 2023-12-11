@@ -18,9 +18,9 @@ package packagemanager
 import (
 	"fmt"
 
-	"github.com/arduino/arduino-cli/arduino"
-	"github.com/arduino/arduino-cli/arduino/cores"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/arduino"
+	"github.com/jacoblai/arduino-cli/arduino/cores"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/pkg/errors"
 	"go.bug.st/downloader/v2"
 	semver "go.bug.st/relaxed-semver"

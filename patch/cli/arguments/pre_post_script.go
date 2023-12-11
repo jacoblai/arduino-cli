@@ -16,7 +16,7 @@
 package arguments
 
 import (
-	"github.com/arduino/arduino-cli/configuration"
+	"github.com/jacoblai/arduino-cli/configuration"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

@@ -22,8 +22,8 @@ import (
 	"os"
 
 	"github.com/ProtonMail/go-crypto/openpgp"
-	"github.com/arduino/arduino-cli/i18n"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/i18n"
 )
 
 var tr = i18n.Tr

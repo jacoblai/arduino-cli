@@ -18,8 +18,8 @@ package completion
 import (
 	"os"
 
-	"github.com/arduino/arduino-cli/i18n"
-	"github.com/arduino/arduino-cli/patch/cli/feedback"
+	"github.com/jacoblai/arduino-cli/i18n"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

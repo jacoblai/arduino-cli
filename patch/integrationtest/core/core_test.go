@@ -27,17 +27,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/arduino/arduino-cli/patch/integrationtest"
 	"github.com/arduino/go-paths-helper"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/jacoblai/arduino-cli/patch/integrationtest"
 	"github.com/stretchr/testify/require"
 	semver "go.bug.st/relaxed-semver"
 	"go.bug.st/testifyjson/requirejson"
 )
 
 func TestCorrectHandlingOfPlatformVersionProperty(t *testing.T) {
-	// See: https://github.com/arduino/arduino-cli/issues/1823
+	// See: https://github.com/jacoblai/arduino-cli/issues/1823
 	env, cli := integrationtest.CreateArduinoCLIWithEnvironment(t)
 	defer env.CleanUp()
 
@@ -277,7 +277,7 @@ func TestCoreInstallEsp32(t *testing.T) {
 	require.NoError(t, err)
 	_, _, err = cli.Run("compile", "-b", "esp32:esp32:esp32", sketchPath.String())
 	require.NoError(t, err)
-	// prevent regressions for https://github.com/arduino/arduino-cli/issues/163
+	// prevent regressions for https://github.com/jacoblai/arduino-cli/issues/163
 	md5 := md5.Sum(([]byte(sketchPath.String())))
 	sketchPathMd5 := strings.ToUpper(hex.EncodeToString(md5[:]))
 	require.NotEmpty(t, sketchPathMd5)

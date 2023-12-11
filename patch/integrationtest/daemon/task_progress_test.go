@@ -17,8 +17,6 @@ package daemon_test
 
 import (
 	"testing"
-
-	"github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // TaskProgressAnalyzer analyzes TaskProgress messages for consistency

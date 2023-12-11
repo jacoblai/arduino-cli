@@ -20,10 +20,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/arduino/arduino-cli/arduino/builder/cpp"
-	f "github.com/arduino/arduino-cli/patch/algorithms"
 	"github.com/arduino/go-paths-helper"
 	"github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino/builder/cpp"
+	f "github.com/jacoblai/arduino-cli/patch/algorithms"
 	"github.com/pkg/errors"
 )
 

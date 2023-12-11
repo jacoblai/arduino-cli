@@ -16,8 +16,8 @@
 package packagemanager
 
 import (
-	"github.com/arduino/arduino-cli/arduino/cores"
 	properties "github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino/cores"
 )
 
 // IdentifyBoard returns a list of boards whose identification properties match the

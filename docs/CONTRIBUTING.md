@@ -183,13 +183,13 @@ This will run the integration tests automatically.
 To run specific packages you must run `go test`.
 
 ```shell
-go test -v github.com/arduino/arduino-cli/internal/integrationtest/lib
+go test -v github.com/jacoblai/arduino-cli/internal/integrationtest/lib
 ```
 
 To run very specific test functions:
 
 ```shell
-go test -v github.com/arduino/arduino-cli/internal/integrationtest/lib -run TestLibUpgradeCommand
+go test -v github.com/jacoblai/arduino-cli/internal/integrationtest/lib -run TestLibUpgradeCommand
 ```
 
 ### Dependency license metadata
@@ -309,7 +309,7 @@ package main
 
 import (
   "fmt"
-  "github.com/arduino/arduino-cli/i18n"
+  "github.com/jacoblai/arduino-cli/i18n"
 )
 
 func main() {
@@ -340,7 +340,7 @@ If your PR doesn't need to be included in the changelog, please start the commit
 [6]: https://github.com/protocolbuffers/protobuf/releases
 [7]: https://pages.github.com/
 [9]: https://www.mkdocs.org/
-[11]: https://github.com/arduino/arduino-cli/blob/master/.github/workflows/deploy-cobra-mkdocs-versioned-poetry.yml
+[11]: https://github.com/jacoblai/arduino-cli/blob/master/.github/workflows/deploy-cobra-mkdocs-versioned-poetry.yml
 [12]:
   https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/deploy-cobra-mkdocs-versioned-poetry.md
 [forum]: https://forum.arduino.cc/index.php?board=145.0
@@ -350,7 +350,7 @@ If your PR doesn't need to be included in the changelog, please start the commit
 [translate]: https://www.transifex.com/arduino-1/arduino-cli/
 [donate]: https://www.arduino.cc/en/Main/Contribute
 [store]: https://store.arduino.cc
-[issue-tracker]: https://github.com/arduino/arduino-cli/issues?q=
+[issue-tracker]: https://github.com/jacoblai/arduino-cli/issues?q=
 [reactions]: https://github.com/blog/2119-add-reactions-to-pull-requests-issues-and-comments
 [prettier-website]: https://prettier.io/
 [prettier-vscode-extension]: https://github.com/prettier/prettier-vscode

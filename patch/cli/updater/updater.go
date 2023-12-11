@@ -21,13 +21,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/arduino/arduino-cli/arduino/httpclient"
-	"github.com/arduino/arduino-cli/configuration"
-	"github.com/arduino/arduino-cli/i18n"
-	"github.com/arduino/arduino-cli/patch/cli/feedback"
-	"github.com/arduino/arduino-cli/patch/inventory"
-	"github.com/arduino/arduino-cli/version"
 	"github.com/fatih/color"
+	"github.com/jacoblai/arduino-cli/arduino/httpclient"
+	"github.com/jacoblai/arduino-cli/configuration"
+	"github.com/jacoblai/arduino-cli/i18n"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback"
+	"github.com/jacoblai/arduino-cli/patch/inventory"
+	"github.com/jacoblai/arduino-cli/version"
 	semver "go.bug.st/relaxed-semver"
 )
 

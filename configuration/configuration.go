@@ -21,10 +21,10 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/arduino/arduino-cli/i18n"
-	"github.com/arduino/arduino-cli/patch/cli/feedback"
 	paths "github.com/arduino/go-paths-helper"
 	"github.com/arduino/go-win32-utils"
+	"github.com/jacoblai/arduino-cli/i18n"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

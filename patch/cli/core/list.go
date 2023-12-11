@@ -18,12 +18,12 @@ package core
 import (
 	"os"
 
-	"github.com/arduino/arduino-cli/commands/core"
-	"github.com/arduino/arduino-cli/patch/cli/feedback"
-	"github.com/arduino/arduino-cli/patch/cli/feedback/result"
-	"github.com/arduino/arduino-cli/patch/cli/feedback/table"
-	"github.com/arduino/arduino-cli/patch/cli/instance"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/commands/core"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback/result"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback/table"
+	"github.com/jacoblai/arduino-cli/patch/cli/instance"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

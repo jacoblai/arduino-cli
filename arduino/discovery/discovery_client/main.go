@@ -22,8 +22,8 @@ import (
 	"os"
 	"sort"
 
-	"github.com/arduino/arduino-cli/arduino/discovery"
-	"github.com/arduino/arduino-cli/arduino/discovery/discoverymanager"
+	"github.com/jacoblai/arduino-cli/arduino/discovery"
+	"github.com/jacoblai/arduino-cli/arduino/discovery/discoverymanager"
 	"github.com/sirupsen/logrus"
 )
 

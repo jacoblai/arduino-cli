@@ -16,12 +16,12 @@
 package main
 
 import (
-	"github.com/arduino/arduino-cli/patch/cli/daemon"
+	"github.com/jacoblai/arduino-cli/patch/cli/daemon"
 	"os"
 
-	"github.com/arduino/arduino-cli/configuration"
-	"github.com/arduino/arduino-cli/i18n"
-	"github.com/arduino/arduino-cli/patch/cli/feedback"
+	"github.com/jacoblai/arduino-cli/configuration"
+	"github.com/jacoblai/arduino-cli/i18n"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback"
 )
 
 func main() {

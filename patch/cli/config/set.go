@@ -20,8 +20,8 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/arduino/arduino-cli/configuration"
-	"github.com/arduino/arduino-cli/patch/cli/feedback"
+	"github.com/jacoblai/arduino-cli/configuration"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

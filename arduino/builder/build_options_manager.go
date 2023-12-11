@@ -20,11 +20,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/arduino/arduino-cli/arduino/builder/internal/utils"
-	"github.com/arduino/arduino-cli/arduino/cores"
-	"github.com/arduino/arduino-cli/arduino/sketch"
 	"github.com/arduino/go-paths-helper"
 	properties "github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino/builder/internal/utils"
+	"github.com/jacoblai/arduino-cli/arduino/cores"
+	"github.com/jacoblai/arduino-cli/arduino/sketch"
 	"github.com/pkg/errors"
 )
 

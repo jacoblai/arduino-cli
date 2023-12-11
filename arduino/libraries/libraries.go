@@ -18,12 +18,12 @@ package libraries
 import (
 	"fmt"
 
-	"github.com/arduino/arduino-cli/arduino/cores"
-	"github.com/arduino/arduino-cli/arduino/globals"
-	"github.com/arduino/arduino-cli/i18n"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	paths "github.com/arduino/go-paths-helper"
 	properties "github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino/cores"
+	"github.com/jacoblai/arduino-cli/arduino/globals"
+	"github.com/jacoblai/arduino-cli/i18n"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	semver "go.bug.st/relaxed-semver"
 )
 

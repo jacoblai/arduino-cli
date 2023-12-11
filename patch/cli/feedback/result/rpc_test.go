@@ -21,8 +21,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/arduino/arduino-cli/patch/cli/feedback/result"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback/result"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/stretchr/testify/require"
 )
 

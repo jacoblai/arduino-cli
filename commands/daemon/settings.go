@@ -22,8 +22,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/arduino/arduino-cli/configuration"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/configuration"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // SettingsGetAll returns a message with a string field containing all the settings

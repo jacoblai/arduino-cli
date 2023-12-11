@@ -23,13 +23,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/arduino/go-paths-helper"
 	"github.com/stretchr/testify/require"
 )
 
 func TestArduinoCliDaemonCompileWithLotOfOutput(t *testing.T) {
-	// See: https://github.com/arduino/arduino-cli/issues/2169
+	// See: https://github.com/jacoblai/arduino-cli/issues/2169
 
 	env, cli := createEnvForDaemon(t)
 	defer env.CleanUp()

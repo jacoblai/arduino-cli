@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/arduino/arduino-cli/arduino/libraries/librariesmanager"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	paths "github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesmanager"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

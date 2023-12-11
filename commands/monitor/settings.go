@@ -18,10 +18,10 @@ package monitor
 import (
 	"context"
 
-	"github.com/arduino/arduino-cli/arduino"
-	pluggableMonitor "github.com/arduino/arduino-cli/arduino/monitor"
-	"github.com/arduino/arduino-cli/commands/internal/instances"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/arduino"
+	pluggableMonitor "github.com/jacoblai/arduino-cli/arduino/monitor"
+	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // EnumerateMonitorPortSettings returns a description of the configuration settings of a monitor port

@@ -18,7 +18,7 @@ package orderedmap_test
 import (
 	"testing"
 
-	"github.com/arduino/arduino-cli/patch/orderedmap"
+	"github.com/jacoblai/arduino-cli/patch/orderedmap"
 	"github.com/stretchr/testify/require"
 )
 

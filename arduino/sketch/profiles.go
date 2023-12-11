@@ -23,8 +23,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/arduino/arduino-cli/arduino/utils"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino/utils"
 	semver "go.bug.st/relaxed-semver"
 	"gopkg.in/yaml.v3"
 )

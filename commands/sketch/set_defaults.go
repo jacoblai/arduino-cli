@@ -18,10 +18,10 @@ package sketch
 import (
 	"context"
 
-	"github.com/arduino/arduino-cli/arduino"
-	"github.com/arduino/arduino-cli/arduino/sketch"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	paths "github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino"
+	"github.com/jacoblai/arduino-cli/arduino/sketch"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // SetSketchDefaults updates the sketch project file (sketch.yaml) with the given defaults

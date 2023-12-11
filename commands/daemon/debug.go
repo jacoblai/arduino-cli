@@ -19,8 +19,8 @@ import (
 	"context"
 	"os"
 
-	cmd "github.com/arduino/arduino-cli/commands/debug"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	cmd "github.com/jacoblai/arduino-cli/commands/debug"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/pkg/errors"
 )
 

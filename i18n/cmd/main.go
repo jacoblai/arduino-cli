@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/arduino/arduino-cli/i18n/cmd/commands"
+	"github.com/jacoblai/arduino-cli/i18n/cmd/commands"
 )
 
 func main() {

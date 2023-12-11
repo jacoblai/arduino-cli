@@ -16,11 +16,11 @@
 package instance
 
 import (
-	"github.com/arduino/arduino-cli/commands"
-	"github.com/arduino/arduino-cli/i18n"
-	"github.com/arduino/arduino-cli/patch/cli/feedback"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/commands"
+	"github.com/jacoblai/arduino-cli/i18n"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 var tr = i18n.Tr

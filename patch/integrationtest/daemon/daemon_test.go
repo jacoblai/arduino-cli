@@ -23,11 +23,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/arduino/arduino-cli/arduino"
-	f "github.com/arduino/arduino-cli/patch/algorithms"
-	"github.com/arduino/arduino-cli/patch/integrationtest"
-	"github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino"
+	f "github.com/jacoblai/arduino-cli/patch/algorithms"
+	"github.com/jacoblai/arduino-cli/patch/integrationtest"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -35,7 +34,7 @@ import (
 )
 
 func TestArduinoCliDaemon(t *testing.T) {
-	// See: https://github.com/arduino/arduino-cli/pull/1804
+	// See: https://github.com/jacoblai/arduino-cli/pull/1804
 
 	env, cli := createEnvForDaemon(t)
 	defer env.CleanUp()
@@ -94,7 +93,7 @@ func TestArduinoCliDaemon(t *testing.T) {
 }
 
 func TestDaemonAutoUpdateIndexOnFirstInit(t *testing.T) {
-	// https://github.com/arduino/arduino-cli/issues/1529
+	// https://github.com/jacoblai/arduino-cli/issues/1529
 
 	env, cli := createEnvForDaemon(t)
 	defer env.CleanUp()
@@ -126,8 +125,8 @@ func createEnvForDaemon(t *testing.T) (*integrationtest.Environment, *integratio
 }
 
 func TestDaemonCompileOptions(t *testing.T) {
-	// See: https://github.com/arduino/arduino-cli/issues/1614
-	// See: https://github.com/arduino/arduino-cli/pull/1820
+	// See: https://github.com/jacoblai/arduino-cli/issues/1614
+	// See: https://github.com/jacoblai/arduino-cli/pull/1820
 
 	env, cli := createEnvForDaemon(t)
 	defer env.CleanUp()
@@ -193,7 +192,7 @@ func TestDaemonCompileOptions(t *testing.T) {
 		}
 		analyzer.Process(msg.GetProgress())
 	}
-	// https://github.com/arduino/arduino-cli/issues/2016
+	// https://github.com/jacoblai/arduino-cli/issues/2016
 	// assert that the task progress is increasing and doesn't contain multiple 100% values
 	results := analyzer.Results[""]
 	require.True(t, results[len(results)-1].GetCompleted(), fmt.Sprintf("latest percent value: %v", results[len(results)-1].GetPercent()))
@@ -201,7 +200,7 @@ func TestDaemonCompileOptions(t *testing.T) {
 }
 
 func TestDaemonCompileAfterFailedLibInstall(t *testing.T) {
-	// See: https://github.com/arduino/arduino-cli/issues/1812
+	// See: https://github.com/jacoblai/arduino-cli/issues/1812
 
 	env, cli := createEnvForDaemon(t)
 	defer env.CleanUp()

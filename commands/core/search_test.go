@@ -18,10 +18,10 @@ package core
 import (
 	"testing"
 
-	"github.com/arduino/arduino-cli/configuration"
-	"github.com/arduino/arduino-cli/patch/cli/instance"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/configuration"
+	"github.com/jacoblai/arduino-cli/patch/cli/instance"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/stretchr/testify/require"
 )
 

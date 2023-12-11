@@ -19,8 +19,8 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/arduino/arduino-cli/configuration"
-	"github.com/arduino/arduino-cli/i18n"
+	"github.com/jacoblai/arduino-cli/configuration"
+	"github.com/jacoblai/arduino-cli/i18n"
 	"github.com/spf13/cobra"
 )
 

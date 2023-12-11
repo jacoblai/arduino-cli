@@ -18,10 +18,10 @@ package config
 import (
 	"os"
 
-	"github.com/arduino/arduino-cli/commands/daemon"
-	"github.com/arduino/arduino-cli/configuration"
-	"github.com/arduino/arduino-cli/patch/cli/feedback"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/commands/daemon"
+	"github.com/jacoblai/arduino-cli/configuration"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

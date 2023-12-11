@@ -5,9 +5,9 @@
 Arduino CLI is an all-in-one solution that provides Boards/Library Managers, sketch builder, board detection, uploader,
 and many other tools needed to use any Arduino compatible board and platform from command line or machine interfaces.
 
-[![Test Go status](https://github.com/arduino/arduino-cli/actions/workflows/test-go-task.yml/badge.svg)](https://github.com/arduino/arduino-cli/actions/workflows/test-go-task.yml)
-[![Publish Nightly Build status](https://github.com/arduino/arduino-cli/actions/workflows/publish-go-nightly-task.yml/badge.svg)](https://github.com/arduino/arduino-cli/actions/workflows/publish-go-nightly-task.yml)
-[![Deploy Website status](https://github.com/arduino/arduino-cli/actions/workflows/deploy-cobra-mkdocs-versioned-poetry.yml/badge.svg)](https://github.com/arduino/arduino-cli/actions/workflows/deploy-cobra-mkdocs-versioned-poetry.yml)
+[![Test Go status](https://github.com/jacoblai/arduino-cli/actions/workflows/test-go-task.yml/badge.svg)](https://github.com/jacoblai/arduino-cli/actions/workflows/test-go-task.yml)
+[![Publish Nightly Build status](https://github.com/jacoblai/arduino-cli/actions/workflows/publish-go-nightly-task.yml/badge.svg)](https://github.com/jacoblai/arduino-cli/actions/workflows/publish-go-nightly-task.yml)
+[![Deploy Website status](https://github.com/jacoblai/arduino-cli/actions/workflows/deploy-cobra-mkdocs-versioned-poetry.yml/badge.svg)](https://github.com/jacoblai/arduino-cli/actions/workflows/deploy-cobra-mkdocs-versioned-poetry.yml)
 [![Codecov](https://codecov.io/gh/arduino/arduino-cli/branch/master/graph/badge.svg)](https://codecov.io/gh/arduino/arduino-cli)
 
 > **Note:** this software is currently under active development: anything can change at any time, API and UI must be
@@ -59,7 +59,7 @@ license@arduino.cc
 [commands reference]: https://arduino.github.io/arduino-cli/latest/commands/arduino-cli
 [faq]: https://arduino.github.io/arduino-cli/latest/FAQ/
 [how to contribute]: https://arduino.github.io/arduino-cli/latest/CONTRIBUTING/
-[contributors]: https://github.com/arduino/arduino-cli/graphs/contributors
+[contributors]: https://github.com/jacoblai/arduino-cli/graphs/contributors
 [nightly builds]: https://arduino.github.io/arduino-cli/latest/installation/#nightly-builds
-[security policy]: https://github.com/arduino/arduino-cli/security/policy
+[security policy]: https://github.com/jacoblai/arduino-cli/security/policy
 [gpl 3.0]: https://www.gnu.org/licenses/gpl-3.0.en.html

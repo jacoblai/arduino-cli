@@ -19,14 +19,14 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/arduino/arduino-cli/arduino"
-	"github.com/arduino/arduino-cli/arduino/cores"
-	"github.com/arduino/arduino-cli/arduino/globals"
-	"github.com/arduino/arduino-cli/arduino/resources"
-	"github.com/arduino/arduino-cli/arduino/sketch"
-	"github.com/arduino/arduino-cli/configuration"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino"
+	"github.com/jacoblai/arduino-cli/arduino/cores"
+	"github.com/jacoblai/arduino-cli/arduino/globals"
+	"github.com/jacoblai/arduino-cli/arduino/resources"
+	"github.com/jacoblai/arduino-cli/arduino/sketch"
+	"github.com/jacoblai/arduino-cli/configuration"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/sirupsen/logrus"
 )
 

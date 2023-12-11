@@ -19,7 +19,7 @@ import (
 	"strings"
 	"testing"
 
-	f "github.com/arduino/arduino-cli/patch/algorithms"
+	f "github.com/jacoblai/arduino-cli/patch/algorithms"
 	"github.com/stretchr/testify/require"
 )
 

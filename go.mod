@@ -1,4 +1,4 @@
-module github.com/arduino/arduino-cli
+module github.com/jacoblai/arduino-cli
 
 go 1.21
 

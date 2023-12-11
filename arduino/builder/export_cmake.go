@@ -24,11 +24,11 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/arduino/arduino-cli/arduino/builder/internal/utils"
-	"github.com/arduino/arduino-cli/arduino/globals"
-	"github.com/arduino/arduino-cli/arduino/libraries"
 	"github.com/arduino/go-paths-helper"
 	properties "github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino/builder/internal/utils"
+	"github.com/jacoblai/arduino-cli/arduino/globals"
+	"github.com/jacoblai/arduino-cli/arduino/libraries"
 )
 
 var lineMatcher = regexp.MustCompile(`^#line\s\d+\s"`)

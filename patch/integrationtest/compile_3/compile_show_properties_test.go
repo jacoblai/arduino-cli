@@ -19,9 +19,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/arduino/arduino-cli/patch/integrationtest"
-	"github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/patch/integrationtest"
 	"github.com/stretchr/testify/require"
 )
 

@@ -19,14 +19,14 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/arduino/arduino-cli/patch/integrationtest"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/patch/integrationtest"
 	"github.com/stretchr/testify/require"
 	"go.bug.st/testifyjson/requirejson"
 )
 
 func TestCompileCommandsJSONGeneration(t *testing.T) {
-	// See: https://github.com/arduino/arduino-cli/issues/2401
+	// See: https://github.com/jacoblai/arduino-cli/issues/2401
 
 	env, cli := integrationtest.CreateArduinoCLIWithEnvironment(t)
 	defer env.CleanUp()

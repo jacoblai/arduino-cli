@@ -21,11 +21,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/arduino/arduino-cli/arduino/cores/packagemanager"
-	"github.com/arduino/arduino-cli/arduino/discovery"
-	"github.com/arduino/arduino-cli/configuration"
 	"github.com/arduino/go-paths-helper"
 	"github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino/cores/packagemanager"
+	"github.com/jacoblai/arduino-cli/arduino/discovery"
+	"github.com/jacoblai/arduino-cli/configuration"
 	"github.com/stretchr/testify/require"
 	semver "go.bug.st/relaxed-semver"
 )

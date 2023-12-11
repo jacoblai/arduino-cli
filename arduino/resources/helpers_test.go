@@ -22,9 +22,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/arduino/arduino-cli/arduino/httpclient"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino/httpclient"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/stretchr/testify/require"
 	"go.bug.st/downloader/v2"
 )

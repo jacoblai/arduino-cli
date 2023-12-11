@@ -19,10 +19,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/arduino/arduino-cli/configuration"
-	"github.com/arduino/arduino-cli/patch/cli/arguments"
-	"github.com/arduino/arduino-cli/patch/cli/feedback"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/configuration"
+	"github.com/jacoblai/arduino-cli/patch/cli/arguments"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

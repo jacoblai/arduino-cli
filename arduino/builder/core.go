@@ -22,11 +22,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/arduino/arduino-cli/arduino/builder/cpp"
-	"github.com/arduino/arduino-cli/arduino/builder/internal/utils"
-	f "github.com/arduino/arduino-cli/patch/algorithms"
-	"github.com/arduino/arduino-cli/patch/buildcache"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino/builder/cpp"
+	"github.com/jacoblai/arduino-cli/arduino/builder/internal/utils"
+	f "github.com/jacoblai/arduino-cli/patch/algorithms"
+	"github.com/jacoblai/arduino-cli/patch/buildcache"
 	"github.com/pkg/errors"
 )
 

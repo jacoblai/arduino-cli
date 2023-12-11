@@ -18,12 +18,12 @@ package core
 import (
 	"context"
 
-	"github.com/arduino/arduino-cli/arduino"
-	"github.com/arduino/arduino-cli/arduino/cores/packagemanager"
-	"github.com/arduino/arduino-cli/commands"
-	"github.com/arduino/arduino-cli/commands/internal/instances"
-	"github.com/arduino/arduino-cli/i18n"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/arduino"
+	"github.com/jacoblai/arduino-cli/arduino/cores/packagemanager"
+	"github.com/jacoblai/arduino-cli/commands"
+	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/i18n"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 var tr = i18n.Tr

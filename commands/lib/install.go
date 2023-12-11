@@ -20,14 +20,14 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/arduino/arduino-cli/arduino"
-	"github.com/arduino/arduino-cli/arduino/libraries"
-	"github.com/arduino/arduino-cli/arduino/libraries/librariesindex"
-	"github.com/arduino/arduino-cli/arduino/libraries/librariesmanager"
-	"github.com/arduino/arduino-cli/commands"
-	"github.com/arduino/arduino-cli/commands/internal/instances"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino"
+	"github.com/jacoblai/arduino-cli/arduino/libraries"
+	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesindex"
+	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesmanager"
+	"github.com/jacoblai/arduino-cli/commands"
+	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/sirupsen/logrus"
 )
 

@@ -20,11 +20,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/arduino/arduino-cli/arduino/cores"
-	"github.com/arduino/arduino-cli/arduino/libraries"
-	"github.com/arduino/arduino-cli/arduino/libraries/librariesmanager"
-	"github.com/arduino/arduino-cli/arduino/utils"
-	"github.com/arduino/arduino-cli/i18n"
+	"github.com/jacoblai/arduino-cli/arduino/cores"
+	"github.com/jacoblai/arduino-cli/arduino/libraries"
+	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesmanager"
+	"github.com/jacoblai/arduino-cli/arduino/utils"
+	"github.com/jacoblai/arduino-cli/i18n"
 	"github.com/schollz/closestmatch"
 	"github.com/sirupsen/logrus"
 )

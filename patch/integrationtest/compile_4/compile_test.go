@@ -27,9 +27,9 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/arduino/arduino-cli/arduino/builder/cpp"
-	"github.com/arduino/arduino-cli/patch/integrationtest"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino/builder/cpp"
+	"github.com/jacoblai/arduino-cli/patch/integrationtest"
 	"github.com/stretchr/testify/require"
 	"go.bug.st/testifyjson/requirejson"
 )

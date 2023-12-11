@@ -18,9 +18,9 @@ package librariesindex
 import (
 	"fmt"
 
-	"github.com/arduino/arduino-cli/arduino/resources"
-	"github.com/arduino/arduino-cli/i18n"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino/resources"
+	"github.com/jacoblai/arduino-cli/i18n"
 	easyjson "github.com/mailru/easyjson"
 	semver "go.bug.st/relaxed-semver"
 )

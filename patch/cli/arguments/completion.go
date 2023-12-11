@@ -18,12 +18,12 @@ package arguments
 import (
 	"context"
 
-	"github.com/arduino/arduino-cli/commands/board"
-	"github.com/arduino/arduino-cli/commands/core"
-	"github.com/arduino/arduino-cli/commands/lib"
-	"github.com/arduino/arduino-cli/commands/upload"
-	"github.com/arduino/arduino-cli/patch/cli/instance"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/commands/board"
+	"github.com/jacoblai/arduino-cli/commands/core"
+	"github.com/jacoblai/arduino-cli/commands/lib"
+	"github.com/jacoblai/arduino-cli/commands/upload"
+	"github.com/jacoblai/arduino-cli/patch/cli/instance"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // GetInstalledBoards is an helper function useful to autocomplete.

@@ -20,10 +20,10 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/arduino/arduino-cli/i18n"
-	f "github.com/arduino/arduino-cli/patch/algorithms"
-	"github.com/arduino/arduino-cli/patch/orderedmap"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/i18n"
+	f "github.com/jacoblai/arduino-cli/patch/algorithms"
+	"github.com/jacoblai/arduino-cli/patch/orderedmap"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	semver "go.bug.st/relaxed-semver"
 )
 

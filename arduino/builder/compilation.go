@@ -22,9 +22,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/arduino/arduino-cli/arduino/builder/internal/utils"
-	"github.com/arduino/arduino-cli/arduino/globals"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino/builder/internal/utils"
+	"github.com/jacoblai/arduino-cli/arduino/globals"
 	"github.com/pkg/errors"
 )
 

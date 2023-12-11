@@ -21,8 +21,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/arduino/arduino-cli/arduino/sketch"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino/sketch"
 	"github.com/stretchr/testify/require"
 )
 

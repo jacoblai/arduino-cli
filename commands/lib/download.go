@@ -18,13 +18,13 @@ package lib
 import (
 	"context"
 
-	"github.com/arduino/arduino-cli/arduino"
-	"github.com/arduino/arduino-cli/arduino/httpclient"
-	"github.com/arduino/arduino-cli/arduino/libraries/librariesindex"
-	"github.com/arduino/arduino-cli/arduino/libraries/librariesmanager"
-	"github.com/arduino/arduino-cli/commands/internal/instances"
-	"github.com/arduino/arduino-cli/i18n"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/arduino"
+	"github.com/jacoblai/arduino-cli/arduino/httpclient"
+	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesindex"
+	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesmanager"
+	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/i18n"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/sirupsen/logrus"
 )
 

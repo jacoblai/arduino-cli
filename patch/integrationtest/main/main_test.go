@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/arduino/arduino-cli/patch/integrationtest"
+	"github.com/jacoblai/arduino-cli/patch/integrationtest"
 	"github.com/stretchr/testify/require"
 	semver "go.bug.st/relaxed-semver"
 	"go.bug.st/testifyjson/requirejson"

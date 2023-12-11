@@ -18,11 +18,11 @@ package upgrade
 import (
 	"os"
 
-	"github.com/arduino/arduino-cli/i18n"
-	"github.com/arduino/arduino-cli/patch/cli/arguments"
-	"github.com/arduino/arduino-cli/patch/cli/core"
-	"github.com/arduino/arduino-cli/patch/cli/instance"
-	"github.com/arduino/arduino-cli/patch/cli/lib"
+	"github.com/jacoblai/arduino-cli/i18n"
+	"github.com/jacoblai/arduino-cli/patch/cli/arguments"
+	"github.com/jacoblai/arduino-cli/patch/cli/core"
+	"github.com/jacoblai/arduino-cli/patch/cli/instance"
+	"github.com/jacoblai/arduino-cli/patch/cli/lib"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

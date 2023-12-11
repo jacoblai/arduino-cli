@@ -18,8 +18,8 @@ package feedback
 import (
 	"sync"
 
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/cmaglie/pb"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // ProgressBar returns a DownloadProgressCB that prints a progress bar.

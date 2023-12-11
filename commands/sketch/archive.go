@@ -22,11 +22,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/arduino/arduino-cli/arduino"
-	"github.com/arduino/arduino-cli/arduino/sketch"
-	"github.com/arduino/arduino-cli/i18n"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	paths "github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino"
+	"github.com/jacoblai/arduino-cli/arduino/sketch"
+	"github.com/jacoblai/arduino-cli/i18n"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 var tr = i18n.Tr

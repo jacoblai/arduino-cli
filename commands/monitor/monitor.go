@@ -20,14 +20,14 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/arduino/arduino-cli/arduino"
-	"github.com/arduino/arduino-cli/arduino/cores"
-	"github.com/arduino/arduino-cli/arduino/cores/packagemanager"
-	pluggableMonitor "github.com/arduino/arduino-cli/arduino/monitor"
-	"github.com/arduino/arduino-cli/commands/internal/instances"
-	"github.com/arduino/arduino-cli/i18n"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino"
+	"github.com/jacoblai/arduino-cli/arduino/cores"
+	"github.com/jacoblai/arduino-cli/arduino/cores/packagemanager"
+	pluggableMonitor "github.com/jacoblai/arduino-cli/arduino/monitor"
+	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/i18n"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/sirupsen/logrus"
 )
 

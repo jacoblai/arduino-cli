@@ -2,7 +2,7 @@
 
 See [how to contribute](https://arduino.github.io/arduino-cli/latest/CONTRIBUTING/)
 
-- [ ] The PR has no duplicates (please search among the [Pull Requests](https://github.com/arduino/arduino-cli/pulls)
+- [ ] The PR has no duplicates (please search among the [Pull Requests](https://github.com/jacoblai/arduino-cli/pulls)
       before creating one)
 - [ ] The PR follows
       [our contributing guidelines](https://arduino.github.io/arduino-cli/latest/CONTRIBUTING/#pull-requests)

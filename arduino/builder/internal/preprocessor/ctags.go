@@ -24,12 +24,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/arduino/arduino-cli/arduino/builder/cpp"
-	"github.com/arduino/arduino-cli/arduino/builder/internal/preprocessor/internal/ctags"
-	"github.com/arduino/arduino-cli/arduino/sketch"
-	"github.com/arduino/arduino-cli/i18n"
 	"github.com/arduino/go-paths-helper"
 	"github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino/builder/cpp"
+	"github.com/jacoblai/arduino-cli/arduino/builder/internal/preprocessor/internal/ctags"
+	"github.com/jacoblai/arduino-cli/arduino/sketch"
+	"github.com/jacoblai/arduino-cli/i18n"
 	"github.com/pkg/errors"
 )
 

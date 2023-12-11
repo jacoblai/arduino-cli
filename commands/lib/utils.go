@@ -16,10 +16,10 @@
 package lib
 
 import (
-	"github.com/arduino/arduino-cli/arduino"
-	"github.com/arduino/arduino-cli/arduino/libraries/librariesindex"
-	"github.com/arduino/arduino-cli/arduino/libraries/librariesmanager"
-	"github.com/arduino/arduino-cli/commands"
+	"github.com/jacoblai/arduino-cli/arduino"
+	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesindex"
+	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesmanager"
+	"github.com/jacoblai/arduino-cli/commands"
 )
 
 type libraryReferencer interface {

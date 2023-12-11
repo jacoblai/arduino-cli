@@ -18,8 +18,8 @@ package compile_test
 import (
 	"testing"
 
-	"github.com/arduino/arduino-cli/patch/integrationtest"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/patch/integrationtest"
 	"github.com/stretchr/testify/require"
 )
 
@@ -27,7 +27,7 @@ func TestCompileAndUploadRuntimeProperties(t *testing.T) {
 	env, cli := integrationtest.CreateArduinoCLIWithEnvironment(t)
 	defer env.CleanUp()
 
-	// https://github.com/arduino/arduino-cli/issues/1971
+	// https://github.com/jacoblai/arduino-cli/issues/1971
 	sketchbookHardwareDir := cli.SketchbookDir().Join("hardware")
 	require.NoError(t, sketchbookHardwareDir.MkdirAll())
 

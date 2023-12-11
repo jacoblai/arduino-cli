@@ -26,9 +26,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/arduino/arduino-cli/i18n"
-	"github.com/arduino/arduino-cli/version"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/i18n"
+	"github.com/jacoblai/arduino-cli/version"
 	"github.com/sirupsen/logrus"
 )
 

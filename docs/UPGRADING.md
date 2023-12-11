@@ -4,13 +4,13 @@ Here you can find a list of migration guides to handle breaking changes between 
 
 ## 0.36.0
 
-### Some golang modules from `github.com/arduino/arduino-cli/*` have been made private.
+### Some golang modules from `github.com/jacoblai/arduino-cli/*` have been made private.
 
 The following golang modules are no longer available as public API:
 
-- `github.com/arduino/arduino-cli/buildcache`
-- `github.com/arduino/arduino-cli/executils`
-- `github.com/arduino/arduino-cli/table`
+- `github.com/jacoblai/arduino-cli/buildcache`
+- `github.com/jacoblai/arduino-cli/executils`
+- `github.com/jacoblai/arduino-cli/table`
 
 Most of the `executils` library has been integrated inside the `go-paths` library `github.com/arduino/go-paths-helper`.
 
@@ -407,7 +407,7 @@ message UploadResult {
 }
 ```
 
-### golang API: method `github.com/arduino/arduino-cli/commands/upload.Upload` changed signature
+### golang API: method `github.com/jacoblai/arduino-cli/commands/upload.Upload` changed signature
 
 The `Upload` method signature has been changed from:
 
@@ -424,7 +424,7 @@ func Upload(ctx context.Context, req *rpc.UploadRequest, outStream io.Writer, er
 Now an `UploadResult` structure is returned together with the error. If you are not interested in the information
 contained in the structure you can safely ignore it.
 
-### golang package `github.com/arduino/arduino-cli/inventory` removed from public API
+### golang package `github.com/jacoblai/arduino-cli/inventory` removed from public API
 
 The package `inventory` is no more a public golang API.
 
@@ -489,8 +489,8 @@ Existing sketch names violating the new constraint need to be updated.
 
 ### golang API: `LoadSketch` function has been moved
 
-The function `github.com/arduino/arduino-cli/commands.LoadSketch` has been moved to package
-`github.com/arduino/arduino-cli/commands/sketch.LoadSketch`. You must change the import accordingly.
+The function `github.com/jacoblai/arduino-cli/commands.LoadSketch` has been moved to package
+`github.com/jacoblai/arduino-cli/commands/sketch.LoadSketch`. You must change the import accordingly.
 
 ## 0.33.0
 
@@ -524,7 +524,7 @@ tools.avrdude.path={runtime.tools.avrdude.path}
 
 ## 0.32.2
 
-### golang API: method `github.com/arduino/arduino-cli/arduino/cores/Board.GetBuildProperties` changed signature
+### golang API: method `github.com/jacoblai/arduino-cli/arduino/cores/Board.GetBuildProperties` changed signature
 
 The method:
 
@@ -604,13 +604,13 @@ $ arduino-cli outdated --format json
 It was a legacy and undocumented feature that is now useless. The corresponding field in gRPC `CompileRequest.vid_pid`
 has been removed as well.
 
-### golang API: method `github.com/arduino/arduino-cli/arduino/libraries/Library.LocationPriorityFor` removed
+### golang API: method `github.com/jacoblai/arduino-cli/arduino/libraries/Library.LocationPriorityFor` removed
 
 That method was outdated and must not be used.
 
-### golang API: method `github.com/arduino/arduino-cli/commands/core/GetPlatforms` renamed
+### golang API: method `github.com/jacoblai/arduino-cli/commands/core/GetPlatforms` renamed
 
-The following method in `github.com/arduino/arduino-cli/commands/core`:
+The following method in `github.com/jacoblai/arduino-cli/commands/core`:
 
 ```go
 func GetPlatforms(req *rpc.PlatformListRequest) ([]*rpc.Platform, error) { ... }
@@ -649,9 +649,9 @@ for _, i := range platforms.InstalledPlatforms {
 The `post_install` script now runs when a tool is correctly installed and the CLI is in "interactive" mode. This
 behavior can be [configured](https://arduino.github.io/arduino-cli/0.30/commands/arduino-cli_core_install/#options).
 
-### golang API: methods in `github.com/arduino/arduino-cli/arduino/cores/packagemanager` changed signature
+### golang API: methods in `github.com/jacoblai/arduino-cli/arduino/cores/packagemanager` changed signature
 
-The following methods in `github.com/arduino/arduino-cli/arduino/cores/packagemanager`:
+The following methods in `github.com/jacoblai/arduino-cli/arduino/cores/packagemanager`:
 
 ```go
 func (pme *Explorer) InstallTool(toolRelease *cores.ToolRelease, taskCB rpc.TaskProgressCB) error { ... }
@@ -694,9 +694,9 @@ The `sketch.json` file is now completely ignored.
 The `cc.arduino.cli.commands.v1.BoardAttach` gRPC command has been removed. This feature is no longer available through
 gRPC.
 
-### golang API: methods in `github.com/arduino/arduino-cli/commands/upload` changed return type
+### golang API: methods in `github.com/jacoblai/arduino-cli/commands/upload` changed return type
 
-The following methods in `github.com/arduino/arduino-cli/commands/upload`:
+The following methods in `github.com/jacoblai/arduino-cli/commands/upload`:
 
 ```go
 func Upload(ctx context.Context, req *rpc.UploadRequest, outStream io.Writer, errStream io.Writer) (*rpc.UploadResponse, error) { ... }
@@ -710,9 +710,9 @@ func Upload(ctx context.Context, req *rpc.UploadRequest, outStream io.Writer, er
 func UsingProgrammer(ctx context.Context, req *rpc.UploadUsingProgrammerRequest, outStream io.Writer, errStream io.Writer) error { ... }
 ```
 
-### golang API: methods in `github.com/arduino/arduino-cli/commands/compile` changed signature
+### golang API: methods in `github.com/jacoblai/arduino-cli/commands/compile` changed signature
 
-The following method in `github.com/arduino/arduino-cli/commands/compile`:
+The following method in `github.com/jacoblai/arduino-cli/commands/compile`:
 
 ```go
 func Compile(ctx context.Context, req *rpc.CompileRequest, outStream, errStream io.Writer, progressCB rpc.TaskProgressCB, debug bool) (r *rpc.CompileResponse, e error) { ... }
@@ -724,12 +724,12 @@ do not require the `debug` parameter anymore:
 func Compile(ctx context.Context, req *rpc.CompileRequest, outStream, errStream io.Writer, progressCB rpc.TaskProgressCB) (r *rpc.CompileResponse, e error) { ... }
 ```
 
-### golang API: package `github.com/arduino/arduino-cli/cli` is no more public
+### golang API: package `github.com/jacoblai/arduino-cli/cli` is no more public
 
 The package `cli` has been made internal. The code in this package is no more public API and can not be directly
 imported in other projects.
 
-### golang API change in `github.com/arduino/arduino-cli/arduino/libraries/librariesmanager.LibrariesManager`
+### golang API change in `github.com/jacoblai/arduino-cli/arduino/libraries/librariesmanager.LibrariesManager`
 
 The following `LibrariesManager.InstallPrerequisiteCheck` methods have changed prototype, from:
 
@@ -752,7 +752,7 @@ plus `Name`, `Version`, and an `UpToDate` boolean flag.
 
 `InstallZipLib` method `archivePath` is now a `paths.Path` instead of a `string`.
 
-### golang API change in `github.com/arduino/arduino-cli/rduino/cores/packagemanager.Explorer`
+### golang API change in `github.com/jacoblai/arduino-cli/rduino/cores/packagemanager.Explorer`
 
 The `packagemanager.Explorer` method `FindToolsRequiredForBoard`:
 
@@ -786,24 +786,24 @@ The golang API implementation of the same functions has been removed as well, so
 available:
 
 ```
-github.com/arduino/arduino-cli/commands.UpdateCoreLibrariesIndex(...)
-github.com/arduino/arduino-cli/commands/outdated.Outdated(...)
-github.com/arduino/arduino-cli/commands/upgrade.Upgrade(...)
+github.com/jacoblai/arduino-cli/commands.UpdateCoreLibrariesIndex(...)
+github.com/jacoblai/arduino-cli/commands/outdated.Outdated(...)
+github.com/jacoblai/arduino-cli/commands/upgrade.Upgrade(...)
 ```
 
 you can use the following functions as a replacement to do the same tasks:
 
 ```
-github.com/arduino/arduino-cli/commands.UpdateLibrariesIndex(...)
-github.com/arduino/arduino-cli/commands.UpdateIndex(...)
-github.com/arduino/arduino-cli/commands/core.GetPlatforms(...)
-github.com/arduino/arduino-cli/commands/lib.LibraryList(...)
-github.com/arduino/arduino-cli/commands/lib.LibraryUpgrade(...)
-github.com/arduino/arduino-cli/commands/lib.LibraryUpgradeAll(...)
-github.com/arduino/arduino-cli/commands/core.PlatformUpgrade(...)
+github.com/jacoblai/arduino-cli/commands.UpdateLibrariesIndex(...)
+github.com/jacoblai/arduino-cli/commands.UpdateIndex(...)
+github.com/jacoblai/arduino-cli/commands/core.GetPlatforms(...)
+github.com/jacoblai/arduino-cli/commands/lib.LibraryList(...)
+github.com/jacoblai/arduino-cli/commands/lib.LibraryUpgrade(...)
+github.com/jacoblai/arduino-cli/commands/lib.LibraryUpgradeAll(...)
+github.com/jacoblai/arduino-cli/commands/core.PlatformUpgrade(...)
 ```
 
-### Changes in golang functions `github.com/arduino/arduino-cli/cli/instance.Init` and `InitWithProfile`
+### Changes in golang functions `github.com/jacoblai/arduino-cli/cli/instance.Init` and `InitWithProfile`
 
 The following functions:
 
@@ -825,7 +825,7 @@ The errors are automatically sent to output via `feedback` package, as for the o
 
 ### Breaking changes in libraries name handling
 
-In the structure `github.com/arduino/arduino-cli/arduino/libraries.Library` the field:
+In the structure `github.com/jacoblai/arduino-cli/arduino/libraries.Library` the field:
 
 - `RealName` has been renamed to `Name`
 - `Name` has been renamed to `DirName`
@@ -856,7 +856,7 @@ The `[*].library.realname` field has been removed.
 
 You must use the `[*].library.name` field instead.
 
-### `github.com/arduino/arduino-cli/arduino/libraries/librariesmanager.LibrariesManager.Install` removed parameter `installLocation`
+### `github.com/jacoblai/arduino-cli/arduino/libraries/librariesmanager.LibrariesManager.Install` removed parameter `installLocation`
 
 The method:
 
@@ -872,7 +872,7 @@ func (lm *LibrariesManager) Install(indexLibrary *librariesindex.Release, libPat
 
 The install location is determined from the libPath.
 
-### `github.com/arduino/arduino-cli/arduino/libraries/librariesmanager.LibrariesManager.FindByReference` now returns a list of libraries.
+### `github.com/jacoblai/arduino-cli/arduino/libraries/librariesmanager.LibrariesManager.FindByReference` now returns a list of libraries.
 
 The method:
 
@@ -888,7 +888,7 @@ func (lm *LibrariesManager) FindByReference(libRef *librariesindex.Reference, in
 
 the method now returns all the libraries matching the criteria and not just the first one.
 
-### `github.com/arduino/arduino-cli/arduino/libraries/librariesmanager.LibraryAlternatives` removed
+### `github.com/jacoblai/arduino-cli/arduino/libraries/librariesmanager.LibraryAlternatives` removed
 
 The structure `librariesmanager.LibraryAlternatives` has been removed. The `libraries.List` object can be used as a
 replacement.
@@ -972,7 +972,7 @@ DownloadProgressStart{url="https://...", label="Downloading package index..."}
 DownloadProgressEnd{success=true, message="Index already downloaded"}
 ```
 
-About the go-lang API the following functions in `github.com/arduino/arduino-cli/commands`:
+About the go-lang API the following functions in `github.com/jacoblai/arduino-cli/commands`:
 
 ```go
 func UpdateIndex(ctx context.Context, req *rpc.UpdateIndexRequest, downloadCB rpc.DownloadProgressCB) (*rpc.UpdateIndexResponse, error) { ... }
@@ -988,7 +988,7 @@ func UpdateIndex(ctx context.Context, req *rpc.UpdateIndexRequest, downloadCB rp
 
 ## 0.27.0
 
-### Breaking changes in golang API `github.com/arduino/arduino-cli/arduino/cores/packagemanager.PackageManager`
+### Breaking changes in golang API `github.com/jacoblai/arduino-cli/arduino/cores/packagemanager.PackageManager`
 
 The `PackageManager` API has been heavily refactored to correctly handle multitasking and concurrency. Many fields in
 the PackageManager object are now private. All the `PackageManager` methods have been moved into other objects. In
@@ -1205,7 +1205,7 @@ previous `PackageManager` instance.
 
 ### Some gRPC-mapped methods now accepts the gRPC request instead of the instance ID as parameter
 
-The following methods in subpackages of `github.com/arduino/arduino-cli/commands/*`:
+The following methods in subpackages of `github.com/jacoblai/arduino-cli/commands/*`:
 
 ```go
 func Watch(instanceID int32) (<-chan *rpc.BoardListWatchResponse, func(), error) { ... }
@@ -1221,7 +1221,7 @@ func LibraryUpgradeAll(req *rpc.LibraryUpgradeAllRequest, downloadCB rpc.Downloa
 func LibraryUpgrade(ctx context.Context, req *rpc.LibraryUpgradeRequest, downloadCB rpc.DownloadProgressCB, taskCB rpc.TaskProgressCB) error { ... }
 ```
 
-The following methods in package `github.com/arduino/arduino-cli/commands`
+The following methods in package `github.com/jacoblai/arduino-cli/commands`
 
 ```go
 func GetInstance(id int32) *CoreInstance { ... }
@@ -1283,28 +1283,28 @@ func (alts *LibraryAlternatives) FindVersion(version *semver.Version, installLoc
 If you're not interested in specifying the `LibraryLocation` you can use `libraries.User` to refer to the user
 directory.
 
-### go-lang functions changes in `github.com/arduino/arduino-cli/configuration`
+### go-lang functions changes in `github.com/jacoblai/arduino-cli/configuration`
 
-- `github.com/arduino/arduino-cli/configuration.IsBundledInDesktopIDE` function has been removed.
-- `github.com/arduino/arduino-cli/configuration.BundleToolsDirectories` has been renamed to `BuiltinToolsDirectories`
-- `github.com/arduino/arduino-cli/configuration.IDEBundledLibrariesDir` has been renamed to `IDEBuiltinLibrariesDir`
+- `github.com/jacoblai/arduino-cli/configuration.IsBundledInDesktopIDE` function has been removed.
+- `github.com/jacoblai/arduino-cli/configuration.BundleToolsDirectories` has been renamed to `BuiltinToolsDirectories`
+- `github.com/jacoblai/arduino-cli/configuration.IDEBundledLibrariesDir` has been renamed to `IDEBuiltinLibrariesDir`
 
 ### Removed `utils.FeedStreamTo` and `utils.ConsumeStreamFrom`
 
-`github.com/arduino/arduino-cli/arduino/utils.FeedStreamTo` and
-`github.com/arduino/arduino-cli/arduino/utils.ConsumeStreamFrom` are now private. They are mainly used internally for
+`github.com/jacoblai/arduino-cli/arduino/utils.FeedStreamTo` and
+`github.com/jacoblai/arduino-cli/arduino/utils.ConsumeStreamFrom` are now private. They are mainly used internally for
 gRPC stream handling and are not suitable to be public API.
 
 ## 0.26.0
 
-### `github.com/arduino/arduino-cli/commands.DownloadToolRelease`, and `InstallToolRelease` functions have been removed
+### `github.com/jacoblai/arduino-cli/commands.DownloadToolRelease`, and `InstallToolRelease` functions have been removed
 
 This functionality was duplicated and already available via `PackageManager` methods.
 
-### `github.com/arduino/arduino-cli/commands.Outdated` and `Upgrade` functions have been moved
+### `github.com/jacoblai/arduino-cli/commands.Outdated` and `Upgrade` functions have been moved
 
-- `github.com/arduino/arduino-cli/commands.Outdated` is now `github.com/arduino/arduino-cli/commands/outdated.Outdated`
-- `github.com/arduino/arduino-cli/commands.Upgrade` is now `github.com/arduino/arduino-cli/commands/upgrade.Upgrade`
+- `github.com/jacoblai/arduino-cli/commands.Outdated` is now `github.com/jacoblai/arduino-cli/commands/outdated.Outdated`
+- `github.com/jacoblai/arduino-cli/commands.Upgrade` is now `github.com/jacoblai/arduino-cli/commands/upgrade.Upgrade`
 
 Old code must change the imports accordingly.
 
@@ -1327,7 +1327,7 @@ Old code must change the imports accordingly.
   Old code should remove the `label` parameter.
 
 - The `PackageManager.UninstallPlatform`, `PackageManager.InstallTool`, and `PackageManager.UninstallTool` methods now
-  requires a `github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1.TaskProgressCB`
+  requires a `github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1.TaskProgressCB`
 
   ```go
   func (pm *PackageManager) UninstallPlatform(platformRelease *cores.PlatformRelease) error {
@@ -1347,7 +1347,7 @@ Old code must change the imports accordingly.
 
 ## 0.25.0
 
-### go-lang function `github.com/arduino/arduino-cli/arduino/utils.FeedStreamTo` has been changed
+### go-lang function `github.com/jacoblai/arduino-cli/arduino/utils.FeedStreamTo` has been changed
 
 The function `FeedStreamTo` has been changed from:
 
@@ -1382,7 +1382,7 @@ https://arduino.github.io/arduino-cli/dev/rpc/commands/#monitorresponse
 https://arduino.github.io/arduino-cli/dev/rpc/commands/#enumeratemonitorportsettingsrequest
 https://arduino.github.io/arduino-cli/dev/rpc/commands/#enumeratemonitorportsettingsresponse
 
-https://github.com/arduino/arduino-cli/blob/master/commands/daemon/term_example/main.go
+https://github.com/jacoblai/arduino-cli/blob/master/commands/daemon/term_example/main.go
 
 ## 0.23.0
 
@@ -1406,7 +1406,7 @@ The gRPC message structure `cc.arduino.cli.commands.v1.PlatformReference` has be
 It is currently used only in `cc.arduino.cli.commands.v1.CompileResponse`, so the field type has been changed as well.
 Old gRPC clients must only update gRPC bindings. They can safely ignore the new fields if not needed.
 
-### golang API: `github.com/arduino/arduino-cli/cli/globals.DefaultIndexURL` has been moved under `github.com/arduino/arduino-cli/arduino/globals`
+### golang API: `github.com/jacoblai/arduino-cli/cli/globals.DefaultIndexURL` has been moved under `github.com/jacoblai/arduino-cli/arduino/globals`
 
 Legacy code should just update the import.
 
@@ -1426,14 +1426,14 @@ Just remove the `label` parameter from legacy code.
 
 ## 0.22.0
 
-### `github.com/arduino/arduino-cli/arduino.MultipleBoardsDetectedError` field changed type
+### `github.com/jacoblai/arduino-cli/arduino.MultipleBoardsDetectedError` field changed type
 
-Now the `Port` field of the error is a `github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1.Port`, usually
+Now the `Port` field of the error is a `github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1.Port`, usually
 imported as `rpc.Port`. The old `discovery.Port` can be converted to the new one using the `.ToRPC()` method.
 
-### Function `github.com/arduino/arduino-cli/commands/upload.DetectConnectedBoard(...)` has been removed
+### Function `github.com/jacoblai/arduino-cli/commands/upload.DetectConnectedBoard(...)` has been removed
 
-Use `github.com/arduino/arduino-cli/commands/board.List(...)` to detect boards.
+Use `github.com/jacoblai/arduino-cli/commands/board.List(...)` to detect boards.
 
 ### Function `arguments.GetDiscoveryPort(...)` has been removed
 
@@ -1459,25 +1459,25 @@ func CalculateFQBNAndPort(portArgs *Port, fqbnArg *Fqbn, instance *rpc.Instance,
 The parameter is no more needed. Lagacy code will continue to work without modification (the value of the parameter will
 be just ignored).
 
-### The content of package `github.com/arduino/arduino-cli/httpclient` has been moved to a different path
+### The content of package `github.com/jacoblai/arduino-cli/httpclient` has been moved to a different path
 
 In particular:
 
-- `UserAgent` and `NetworkProxy` have been moved to `github.com/arduino/arduino-cli/configuration`
-- the remainder of the package `github.com/arduino/arduino-cli/httpclient` has been moved to
-  `github.com/arduino/arduino-cli/arduino/httpclient`
+- `UserAgent` and `NetworkProxy` have been moved to `github.com/jacoblai/arduino-cli/configuration`
+- the remainder of the package `github.com/jacoblai/arduino-cli/httpclient` has been moved to
+  `github.com/jacoblai/arduino-cli/arduino/httpclient`
 
 The old imports must be updated according to the list above.
 
-### `commands.DownloadProgressCB` and `commands.TaskProgressCB` have been moved to package `github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1`
+### `commands.DownloadProgressCB` and `commands.TaskProgressCB` have been moved to package `github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1`
 
 All references to these types must be updated with the new import.
 
-### `commands.GetDownloaderConfig` has been moved to package `github.com/arduino/arduino-cli/arduino/httpclient`
+### `commands.GetDownloaderConfig` has been moved to package `github.com/jacoblai/arduino-cli/arduino/httpclient`
 
 All references to this function must be updated with the new import.
 
-### `commands.Download` has been removed and replaced by `github.com/arduino/arduino-cli/arduino/httpclient.DownloadFile`
+### `commands.Download` has been removed and replaced by `github.com/jacoblai/arduino-cli/arduino/httpclient.DownloadFile`
 
 The old function must be replaced by the new one that is much more versatile.
 
@@ -1600,18 +1600,18 @@ func Compile(
 if a callback function is provided the `Compile` command will call it periodically with progress reports with the
 percentage of compilation completed, otherwise, if the parameter is `nil`, no progress reports will be performed.
 
-### `github.com/arduino/arduino-cli/cli/arguments.ParseReferences` function change
+### `github.com/jacoblai/arduino-cli/cli/arguments.ParseReferences` function change
 
 The `parseArch` parameter was removed since it was unused and was always true. This means that the architecture gets
 always parsed by the function.
 
-### `github.com/arduino/arduino-cli/cli/arguments.ParseReference` function change
+### `github.com/jacoblai/arduino-cli/cli/arguments.ParseReference` function change
 
 The `parseArch` parameter was removed since it was unused and was always true. This means that the architecture gets
 always parsed by the function. Furthermore the function now should also correctly interpret `packager:arch` spelled with
 the wrong casing.
 
-### `github.com/arduino/arduino-cli/executils.NewProcess` and `executils.NewProcessFromPath` function change
+### `github.com/jacoblai/arduino-cli/executils.NewProcess` and `executils.NewProcessFromPath` function change
 
 A new argument `extraEnv` has been added to `executils.NewProcess` and `executils.NewProcessFromPath`, the new function
 signature is:
@@ -1626,7 +1626,7 @@ func NewProcessFromPath(extraEnv []string, executable *paths.Path, args ...strin
 
 The `extraEnv` params allow to pass environment variables (in addition to the default ones) to the spawned process.
 
-### `github.com/arduino/arduino-cli/i18n.Init(...)` now requires an empty string to be passed for autodetection of locale
+### `github.com/jacoblai/arduino-cli/i18n.Init(...)` now requires an empty string to be passed for autodetection of locale
 
 For automated detection of locale, change the call from:
 
@@ -1640,7 +1640,7 @@ to
 i18n.Init("")
 ```
 
-### `github.com/arduino/arduino-cli/legacy/i18n` module has been removed (in particular the `i18n.Logger`)
+### `github.com/jacoblai/arduino-cli/legacy/i18n` module has been removed (in particular the `i18n.Logger`)
 
 The `i18n.Logger` is no longer available. It was mainly used in the legacy builder struct field `Context.Logger`.
 
@@ -1788,10 +1788,10 @@ requesting connected board lists, now that information is stored in the `port` f
 
 ### Change public library interface
 
-#### `github.com/arduino/arduino-cli/i18n` package
+#### `github.com/jacoblai/arduino-cli/i18n` package
 
 The behavior of the `Init` function has changed. The user specified locale code is no longer read from the
-`github.com/arduino/arduino-cli/configuration` package and now must be passed directly to `Init` as a string:
+`github.com/jacoblai/arduino-cli/configuration` package and now must be passed directly to `Init` as a string:
 
 ```go
 i18n.Init("it")
@@ -1803,9 +1803,9 @@ Omit the argument for automated locale detection:
 i18n.Init()
 ```
 
-#### `github.com/arduino/arduino-cli/arduino/builder` package
+#### `github.com/jacoblai/arduino-cli/arduino/builder` package
 
-`GenBuildPath()` function has been moved to `github.com/arduino/arduino-cli/arduino/sketch` package. The signature is
+`GenBuildPath()` function has been moved to `github.com/jacoblai/arduino-cli/arduino/sketch` package. The signature is
 unchanged.
 
 `EnsureBuildPathExists` function from has been completely removed, in its place use
@@ -1814,7 +1814,7 @@ unchanged.
 `SketchSaveItemCpp` function signature is changed from `path string, contents []byte, destPath string` to
 `path *paths.Path, contents []byte, destPath *paths.Path`. `paths` is `github.com/arduino/go-paths-helper`.
 
-`SketchLoad` function has been removed, in its place use `New` from `github.com/arduino/arduino-cli/arduino/sketch`
+`SketchLoad` function has been removed, in its place use `New` from `github.com/jacoblai/arduino-cli/arduino/sketch`
 package.
 
 ```diff
@@ -1836,7 +1836,7 @@ If you need to set a custom build path you must instead set it after creating th
 `sketch *sketch.Sketch, destPath string, overrides map[string]string` to
 `sketch *sketch.Sketch, destPath *paths.Path, overrides map[string]string`.
 
-#### `github.com/arduino/arduino-cli/arduino/sketch` package
+#### `github.com/jacoblai/arduino-cli/arduino/sketch` package
 
 `Item` struct has been removed, use `go-paths-helper.Path` in its place.
 
@@ -1866,23 +1866,23 @@ removed, in its place:
 
 `InvalidSketchFoldernameError` has been renamed `InvalidSketchFolderNameError`.
 
-#### `github.com/arduino/arduino-cli/arduino/sketches` package
+#### `github.com/jacoblai/arduino-cli/arduino/sketches` package
 
 `Sketch` struct has been merged with `sketch.Sketch` struct.
 
-`Metadata` and `BoardMetadata` structs have been moved to `github.com/arduino/arduino-cli/arduino/sketch` package.
+`Metadata` and `BoardMetadata` structs have been moved to `github.com/jacoblai/arduino-cli/arduino/sketch` package.
 
 `NewSketchFromPath` has been deleted, use `sketch.New` in its place.
 
 `ImportMetadata` is now private called internally by `sketch.New`.
 
-`ExportMetadata` has been moved to `github.com/arduino/arduino-cli/arduino/sketch` package.
+`ExportMetadata` has been moved to `github.com/jacoblai/arduino-cli/arduino/sketch` package.
 
 `BuildPath` has been removed, use `sketch.Sketch.BuildPath` in its place.
 
-`CheckForPdeFiles` has been moved to `github.com/arduino/arduino-cli/arduino/sketch` package.
+`CheckForPdeFiles` has been moved to `github.com/jacoblai/arduino-cli/arduino/sketch` package.
 
-#### `github.com/arduino/arduino-cli/legacy/builder/types` package
+#### `github.com/jacoblai/arduino-cli/legacy/builder/types` package
 
 `Sketch` has been removed, use `sketch.Sketch` in its place.
 
@@ -2094,7 +2094,7 @@ This behaviour is now removed and the internal `CoreInstance` must be explicitly
 
 ### Removed rarely used golang API
 
-The following function from the `github.com/arduino/arduino-cli/arduino/libraries` module is no longer available:
+The following function from the `github.com/jacoblai/arduino-cli/arduino/libraries` module is no longer available:
 
 ```go
 func (lm *LibrariesManager) UpdateIndex(config *downloader.Config) (*downloader.Downloader, error) {

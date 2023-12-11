@@ -23,12 +23,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/arduino/arduino-cli/arduino"
-	"github.com/arduino/arduino-cli/arduino/cores"
-	"github.com/arduino/arduino-cli/arduino/discovery"
-	"github.com/arduino/arduino-cli/configuration"
 	"github.com/arduino/go-paths-helper"
 	properties "github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino"
+	"github.com/jacoblai/arduino-cli/arduino/cores"
+	"github.com/jacoblai/arduino-cli/arduino/discovery"
+	"github.com/jacoblai/arduino-cli/configuration"
 	"github.com/pkg/errors"
 	semver "go.bug.st/relaxed-semver"
 )
@@ -580,7 +580,7 @@ func convertUploadToolsToPluggableDiscovery(props *properties.Map) {
 		defaultAction := action + ".default"
 		if !props.ContainsKey(defaultAction) {
 			// Search for "menu.MENU-ID.MENU-ITEM.ACTION.tool" (some platforms sets ACTION.tool on
-			// submenu config entries). See https://github.com/arduino/arduino-cli/issues/1444
+			// submenu config entries). See https://github.com/jacoblai/arduino-cli/issues/1444
 			for key, value := range props.AsMap() {
 				if !strings.HasPrefix(key, "menu.") {
 					continue

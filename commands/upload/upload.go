@@ -23,19 +23,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/arduino/arduino-cli/arduino"
-	"github.com/arduino/arduino-cli/arduino/cores"
-	"github.com/arduino/arduino-cli/arduino/cores/packagemanager"
-	"github.com/arduino/arduino-cli/arduino/discovery"
-	"github.com/arduino/arduino-cli/arduino/globals"
-	"github.com/arduino/arduino-cli/arduino/serialutils"
-	"github.com/arduino/arduino-cli/arduino/sketch"
-	"github.com/arduino/arduino-cli/commands/internal/instances"
-	"github.com/arduino/arduino-cli/i18n"
-	f "github.com/arduino/arduino-cli/patch/algorithms"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	paths "github.com/arduino/go-paths-helper"
 	properties "github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino"
+	"github.com/jacoblai/arduino-cli/arduino/cores"
+	"github.com/jacoblai/arduino-cli/arduino/cores/packagemanager"
+	"github.com/jacoblai/arduino-cli/arduino/discovery"
+	"github.com/jacoblai/arduino-cli/arduino/globals"
+	"github.com/jacoblai/arduino-cli/arduino/serialutils"
+	"github.com/jacoblai/arduino-cli/arduino/sketch"
+	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/i18n"
+	f "github.com/jacoblai/arduino-cli/patch/algorithms"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
@@ -400,7 +400,7 @@ func runProgramAction(pme *packagemanager.Explorer,
 
 	// Force port wait to make easier to unbrick boards like the Arduino Leonardo, or similar with native USB,
 	// when a sketch causes a crash and the native USB serial port is lost.
-	// See https://github.com/arduino/arduino-cli/issues/1943 for the details.
+	// See https://github.com/jacoblai/arduino-cli/issues/1943 for the details.
 	//
 	// In order to trigger the forced serial-port-wait the following conditions must be met:
 	// - No upload port specified (protocol == "default")

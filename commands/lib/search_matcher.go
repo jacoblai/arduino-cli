@@ -18,8 +18,8 @@ package lib
 import (
 	"strings"
 
-	"github.com/arduino/arduino-cli/arduino/libraries/librariesindex"
-	"github.com/arduino/arduino-cli/arduino/utils"
+	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesindex"
+	"github.com/jacoblai/arduino-cli/arduino/utils"
 )
 
 // matcherTokensFromQueryString parses the query string into tokens of interest

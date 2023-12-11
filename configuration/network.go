@@ -21,7 +21,7 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/arduino/arduino-cli/version"
+	"github.com/jacoblai/arduino-cli/version"
 	"github.com/spf13/viper"
 )
 

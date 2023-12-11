@@ -16,8 +16,8 @@
 package arguments
 
 import (
-	"github.com/arduino/arduino-cli/patch/cli/feedback"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/patch/cli/feedback"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // AskForUserFields prompts the user to input the provided user fields.

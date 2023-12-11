@@ -73,7 +73,7 @@ body:
       label: Issue checklist
       description: Please double-check that you have done each of the following things before submitting the issue.
       options:
-        - label: I searched for previous reports in [the issue tracker](https://github.com/arduino/arduino-cli/issues?q=)
+        - label: I searched for previous reports in [the issue tracker](https://github.com/jacoblai/arduino-cli/issues?q=)
           required: true
         - label: I verified the problem still occurs when using the [nightly build](https://arduino.github.io/arduino-cli/dev/installation/#nightly-builds)
           required: true

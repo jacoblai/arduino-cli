@@ -19,9 +19,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/arduino/arduino-cli/arduino/globals"
 	"github.com/arduino/go-paths-helper"
 	properties "github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino/globals"
 	"github.com/pkg/errors"
 	semver "go.bug.st/relaxed-semver"
 )

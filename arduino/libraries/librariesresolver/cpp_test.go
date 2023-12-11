@@ -18,7 +18,7 @@ package librariesresolver
 import (
 	"testing"
 
-	"github.com/arduino/arduino-cli/arduino/libraries"
+	"github.com/jacoblai/arduino-cli/arduino/libraries"
 	"github.com/stretchr/testify/require"
 )
 

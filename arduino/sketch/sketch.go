@@ -22,9 +22,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/arduino/arduino-cli/arduino/globals"
-	"github.com/arduino/arduino-cli/i18n"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino/globals"
+	"github.com/jacoblai/arduino-cli/i18n"
 	"github.com/pkg/errors"
 )
 
@@ -202,7 +202,7 @@ func (s *Sketch) GetProfile(profileName string) *Profile {
 //	mysketch/MySketch.ino
 //
 // This is mostly necessary to avoid errors on Mac OS X.
-// For more info see: https://github.com/arduino/arduino-cli/issues/1174
+// For more info see: https://github.com/jacoblai/arduino-cli/issues/1174
 func (s *Sketch) checkSketchCasing() error {
 	files, err := s.FullPath.ReadDir()
 	if err != nil {

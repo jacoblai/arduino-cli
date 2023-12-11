@@ -19,9 +19,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/arduino/arduino-cli/arduino/httpclient"
-	rpc "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	paths "github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino/httpclient"
+	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"go.bug.st/downloader/v2"
 )
 

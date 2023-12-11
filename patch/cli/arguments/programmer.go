@@ -18,8 +18,7 @@ package arguments
 import (
 	"context"
 
-	"github.com/arduino/arduino-cli/commands/board"
-	"github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/commands/board"
 	"github.com/spf13/cobra"
 )
 

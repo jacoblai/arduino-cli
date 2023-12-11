@@ -23,10 +23,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/arduino/arduino-cli/arduino/cores"
-	"github.com/arduino/arduino-cli/configuration"
 	"github.com/arduino/go-paths-helper"
 	"github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino/cores"
+	"github.com/jacoblai/arduino-cli/configuration"
 	"github.com/stretchr/testify/require"
 	semver "go.bug.st/relaxed-semver"
 )
@@ -486,7 +486,7 @@ func TestFindToolsRequiredForBoard(t *testing.T) {
 		require.NotContains(t, tools, esptool0413)
 	}
 
-	// As seen in https://github.com/arduino/arduino-cli/issues/73 the map randomess
+	// As seen in https://github.com/jacoblai/arduino-cli/issues/73 the map randomess
 	// may make the function fail half of the times. Repeating the test 10 times
 	// greatly increases the chances to trigger the bad case.
 	testConflictingToolsInDifferentPackages()
@@ -542,7 +542,7 @@ func TestFindToolsRequiredForBoard(t *testing.T) {
 	require.NotNil(t, featherTools)
 
 	// Test when a package index requires two different version of the same tool
-	// See: https://github.com/arduino/arduino-cli/issues/166#issuecomment-528295989
+	// See: https://github.com/jacoblai/arduino-cli/issues/166#issuecomment-528295989
 	bossac17 := pme.FindToolDependency(&cores.ToolDependency{
 		ToolPackager: "arduino",
 		ToolName:     "bossac",
@@ -585,7 +585,7 @@ func TestIdentifyBoard(t *testing.T) {
 	require.Equal(t, "[test:avr:b]", fmt.Sprintf("%v", identify("0x9999", "0x0002")))
 	require.Equal(t, "[test:avr:c]", fmt.Sprintf("%v", identify("0x9999", "0x0003")))
 	require.Equal(t, "[test:avr:c]", fmt.Sprintf("%v", identify("0x9999", "0x0004")))
-	// https://github.com/arduino/arduino-cli/issues/456
+	// https://github.com/jacoblai/arduino-cli/issues/456
 	require.Equal(t, "[test:avr:d]", fmt.Sprintf("%v", identify("0x9999", "0x0005")))
 	// Check mixed case
 	require.Equal(t, "[test:avr:e]", fmt.Sprintf("%v", identify("0xAB00", "0xcd00")))

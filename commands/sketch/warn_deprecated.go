@@ -18,8 +18,8 @@ package sketch
 import (
 	"fmt"
 
-	"github.com/arduino/arduino-cli/arduino/sketch"
 	paths "github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino/sketch"
 )
 
 // WarnDeprecatedFiles warns the user that a type of sketch files are deprecated

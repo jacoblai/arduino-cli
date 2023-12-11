@@ -23,8 +23,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/arduino/arduino-cli/patch/integrationtest"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/patch/integrationtest"
 	"github.com/stretchr/testify/require"
 	"go.bug.st/testifyjson/requirejson"
 )
@@ -411,7 +411,7 @@ func TestUploadWithInputDirContainingMultipleBinaries(t *testing.T) {
 	defer env.CleanUp()
 
 	// This tests verifies the behaviour outlined in this issue:
-	// https://github.com/arduino/arduino-cli/issues/765#issuecomment-699678646
+	// https://github.com/jacoblai/arduino-cli/issues/765#issuecomment-699678646
 	_, _, err := cli.Run("update")
 	require.NoError(t, err)
 
@@ -581,7 +581,7 @@ func TestCompileAndUploadToPortWithBoardAutodetect(t *testing.T) {
 }
 
 func TestPanicIfUploadToolReferenceAnInexistentPlatform(t *testing.T) {
-	// See: https://github.com/arduino/arduino-cli/issues/2042
+	// See: https://github.com/jacoblai/arduino-cli/issues/2042
 
 	env, cli := integrationtest.CreateArduinoCLIWithEnvironment(t)
 	defer env.CleanUp()

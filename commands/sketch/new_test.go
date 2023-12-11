@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/stretchr/testify/require"
 )
 

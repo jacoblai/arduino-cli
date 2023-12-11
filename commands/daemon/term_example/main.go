@@ -23,7 +23,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/arduino/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

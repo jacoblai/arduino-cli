@@ -18,13 +18,13 @@ package compile_test
 import (
 	"testing"
 
-	"github.com/arduino/arduino-cli/patch/integrationtest"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/patch/integrationtest"
 	"github.com/stretchr/testify/require"
 )
 
 func TestCompileSketchWithCxxOrCc(t *testing.T) {
-	// See: https://github.com/arduino/arduino-cli/issues/1149
+	// See: https://github.com/jacoblai/arduino-cli/issues/1149
 
 	env, cli := integrationtest.CreateArduinoCLIWithEnvironment(t)
 	defer env.CleanUp()

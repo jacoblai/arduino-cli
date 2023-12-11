@@ -17,8 +17,8 @@ package librariesmanager
 import (
 	"testing"
 
-	"github.com/arduino/arduino-cli/arduino/libraries"
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/arduino/libraries"
 	"github.com/stretchr/testify/require"
 )
 

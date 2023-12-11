@@ -25,18 +25,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/arduino/arduino-cli/arduino/builder/internal/logger"
-	"github.com/arduino/arduino-cli/arduino/builder/internal/preprocessor"
-	"github.com/arduino/arduino-cli/arduino/builder/internal/utils"
-	"github.com/arduino/arduino-cli/arduino/cores"
-	"github.com/arduino/arduino-cli/arduino/globals"
-	"github.com/arduino/arduino-cli/arduino/libraries"
-	"github.com/arduino/arduino-cli/arduino/libraries/librariesmanager"
-	"github.com/arduino/arduino-cli/arduino/libraries/librariesresolver"
-	"github.com/arduino/arduino-cli/arduino/sketch"
-	"github.com/arduino/arduino-cli/i18n"
 	"github.com/arduino/go-paths-helper"
 	"github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/arduino/builder/internal/logger"
+	"github.com/jacoblai/arduino-cli/arduino/builder/internal/preprocessor"
+	"github.com/jacoblai/arduino-cli/arduino/builder/internal/utils"
+	"github.com/jacoblai/arduino-cli/arduino/cores"
+	"github.com/jacoblai/arduino-cli/arduino/globals"
+	"github.com/jacoblai/arduino-cli/arduino/libraries"
+	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesmanager"
+	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesresolver"
+	"github.com/jacoblai/arduino-cli/arduino/sketch"
+	"github.com/jacoblai/arduino-cli/i18n"
 	"github.com/pkg/errors"
 )
 
@@ -108,7 +108,7 @@ func (l *SketchLibrariesDetector) resolveLibrary(header, platformArch string) *l
 		// ./libraries1/Lib/lib1.h and ./libraries2/Lib/lib2.h
 		// Without this check the library resolution would be stuck in a loop.
 		// This behaviour has been reported in this issue:
-		// https://github.com/arduino/arduino-cli/issues/973
+		// https://github.com/jacoblai/arduino-cli/issues/973
 		if selected == alreadyImported {
 			selected = alreadyImported
 		}

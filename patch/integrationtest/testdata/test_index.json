@@ -3,14 +3,14 @@
     {
       "maintainer": "Arduino",
       "help": {
-        "online": "https://github.com/Arduino/arduino-cli"
+        "online": "https://github.com/jacoblai/arduino-cli"
       },
-      "websiteURL": "https://github.com/Arduino/arduino-cli",
+      "websiteURL": "https://github.com/jacoblai/arduino-cli",
       "platforms": [
         {
           "category": "Test Category",
           "help": {
-            "online": "https://github.com/Arduino/arduino-cli"
+            "online": "https://github.com/jacoblai/arduino-cli"
           },
           "url": "https://raw.githubusercontent.com/arduino/arduino-cli/master/internal/integrationtest/testdata/core.zip",
           "checksum": "SHA-256:6a338cf4d6d501176a2d352c87a8d72ac7488b8c5b82cdf2a4e2cef630391092",
@@ -29,7 +29,7 @@
         {
           "category": "Test Category",
           "help": {
-            "online": "https://github.com/Arduino/arduino-cli"
+            "online": "https://github.com/jacoblai/arduino-cli"
           },
           "url": "https://raw.githubusercontent.com/arduino/arduino-cli/master/internal/integrationtest/testdata/core.zip",
           "checksum": "SHA-256:6a338cf4d6d501176a2d352c87a8d72ac7488b8c5b82cdf2a4e2cef630391092",
@@ -48,7 +48,7 @@
         {
           "category": "Test Category",
           "help": {
-            "online": "https://github.com/Arduino/arduino-cli"
+            "online": "https://github.com/jacoblai/arduino-cli"
           },
           "url": "https://raw.githubusercontent.com/arduino/arduino-cli/master/internal/integrationtest/testdata/core.zip",
           "checksum": "SHA-256:6a338cf4d6d501176a2d352c87a8d72ac7488b8c5b82cdf2a4e2cef630391092",
@@ -87,14 +87,14 @@
       "email": "test@example.com",
       "maintainer": "Arduino",
       "help": {
-        "online": "https://github.com/Arduino/arduino-cli"
+        "online": "https://github.com/jacoblai/arduino-cli"
       },
-      "websiteURL": "https://github.com/Arduino/arduino-cli",
+      "websiteURL": "https://github.com/jacoblai/arduino-cli",
       "platforms": [
         {
           "category": "Zipslip Test",
           "help": {
-            "online": "https://github.com/Arduino/arduino-cli"
+            "online": "https://github.com/jacoblai/arduino-cli"
           },
           "url": "https://raw.githubusercontent.com/arduino/arduino-cli/master/internal/integrationtest/testdata/evil.zip",
           "checksum": "SHA-256:9b85dfe23f13318efc0e541327f584a0f3674a773d46a7eb8b25f0f408d07f96",
@@ -118,14 +118,14 @@
       "email": "test@example.com",
       "maintainer": "Arduino",
       "help": {
-        "online": "https://github.com/Arduino/arduino-cli"
+        "online": "https://github.com/jacoblai/arduino-cli"
       },
-      "websiteURL": "https://github.com/Arduino/arduino-cli",
+      "websiteURL": "https://github.com/jacoblai/arduino-cli",
       "platforms": [
         {
           "category": "BrokenChecksum Test",
           "help": {
-            "online": "https://github.com/Arduino/arduino-cli"
+            "online": "https://github.com/jacoblai/arduino-cli"
           },
           "url": "https://raw.githubusercontent.com/arduino/arduino-cli/master/internal/integrationtest/testdata/core.zip",
           "checksum": "SHA-256:1a338cf4d6d501176a2d352c87a8d72ac7488b8c5b82cdf2a4e2cef630391092",
@@ -211,14 +211,14 @@
       "email": "test@example.com",
       "maintainer": "Arduino",
       "help": {
-        "online": "https://github.com/Arduino/arduino-cli"
+        "online": "https://github.com/jacoblai/arduino-cli"
       },
-      "websiteURL": "https://github.com/Arduino/arduino-cli",
+      "websiteURL": "https://github.com/jacoblai/arduino-cli",
       "platforms": [
         {
           "category": "Test",
           "help": {
-            "online": "https://github.com/Arduino/arduino-cli"
+            "online": "https://github.com/jacoblai/arduino-cli"
           },
           "url": "https://raw.githubusercontent.com/arduino/arduino-cli/master/internal/integrationtest/testdata/core.zip",
           "checksum": "SHA-256:6a338cf4d6d501176a2d352c87a8d72ac7488b8c5b82cdf2a4e2cef630391092",

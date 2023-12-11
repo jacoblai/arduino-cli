@@ -109,7 +109,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          export GO_TEST_PACKAGE="github.com/arduino/arduino-cli/internal/integrationtest/${{ matrix.tests }}"
+          export GO_TEST_PACKAGE="github.com/jacoblai/arduino-cli/internal/integrationtest/${{ matrix.tests }}"
           task go:integration-test
           mv coverage_integration.txt coverage_integration_${{ matrix.operating-system }}_${{ matrix.tests }}.txt
 
