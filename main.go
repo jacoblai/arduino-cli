@@ -16,7 +16,7 @@
 package main
 
 import (
-	"github.com/jacoblai/arduino-cli/patch/cli/daemon"
+	"github.com/jacoblai/arduino-cli/patch/cli"
 	"os"
 
 	"github.com/jacoblai/arduino-cli/configuration"
@@ -27,7 +27,7 @@ import (
 func main() {
 	configuration.Settings = configuration.Init(configuration.FindConfigFileInArgs(os.Args))
 	i18n.Init(configuration.Settings.GetString("locale"))
-	arduinoCmd := daemon.NewCommand()
+	arduinoCmd := cli.NewCommand()
 	if err := arduinoCmd.Execute(); err != nil {
 		feedback.FatalError(err, feedback.ErrGeneric)
 	}
