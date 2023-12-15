@@ -20,7 +20,6 @@ import (
 	"github.com/jacoblai/arduino-cli/i18n"
 	"github.com/jacoblai/arduino-cli/inter/cli/daemon"
 	"github.com/jacoblai/arduino-cli/inter/cli/feedback"
-	"log"
 )
 
 var (
@@ -30,7 +29,6 @@ var (
 func main() {
 	configuration.Settings = configuration.Init(cmdWorkDir + "/arduino-cli.yaml")
 	i18n.Init(configuration.Settings.GetString("locale"))
-	log.Println(configuration.Settings)
 	arduinoCmd := daemon.NewCommand()
 	if err := arduinoCmd.Execute(); err != nil {
 		feedback.FatalError(err, feedback.ErrGeneric)
