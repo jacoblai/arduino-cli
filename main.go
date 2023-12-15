@@ -18,18 +18,15 @@ package main
 import (
 	"github.com/jacoblai/arduino-cli/configuration"
 	"github.com/jacoblai/arduino-cli/i18n"
-	"github.com/jacoblai/arduino-cli/inter/cli/daemon"
+	"github.com/jacoblai/arduino-cli/inter/cli"
 	"github.com/jacoblai/arduino-cli/inter/cli/feedback"
-)
-
-var (
-	cmdWorkDir = "/Users/jac/Downloads/arduino-cli_0.34.2_macOS_64bit"
+	"os"
 )
 
 func main() {
-	configuration.Settings = configuration.Init(cmdWorkDir + "/arduino-cli.yaml")
+	configuration.Settings = configuration.Init(configuration.FindConfigFileInArgs(os.Args))
 	i18n.Init(configuration.Settings.GetString("locale"))
-	arduinoCmd := daemon.NewCommand()
+	arduinoCmd := cli.NewCommand()
 	if err := arduinoCmd.Execute(); err != nil {
 		feedback.FatalError(err, feedback.ErrGeneric)
 	}
