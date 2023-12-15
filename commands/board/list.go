@@ -32,8 +32,8 @@ import (
 	"github.com/jacoblai/arduino-cli/arduino/cores/packagemanager"
 	"github.com/jacoblai/arduino-cli/arduino/discovery"
 	"github.com/jacoblai/arduino-cli/arduino/httpclient"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
-	"github.com/jacoblai/arduino-cli/patch/inventory"
+	"github.com/jacoblai/arduino-cli/commands"
+	"github.com/jacoblai/arduino-cli/inter/inventory"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -157,9 +157,7 @@ func identify(pme *packagemanager.Explorer, port *discovery.Port) ([]*rpc.BoardL
 
 		// We need the Platform maintaner for sorting so we set it here
 		platform := &rpc.Platform{
-			Metadata: &rpc.PlatformMetadata{
-				Maintainer: board.PlatformRelease.Platform.Package.Maintainer,
-			},
+			Maintainer: board.PlatformRelease.Platform.Package.Maintainer,
 		}
 		boards = append(boards, &rpc.BoardListItem{
 			Name:     board.Name(),
@@ -182,12 +180,12 @@ func identify(pme *packagemanager.Explorer, port *discovery.Port) ([]*rpc.BoardL
 
 	// Sort by FQBN alphabetically
 	sort.Slice(boards, func(i, j int) bool {
-		return strings.ToLower(boards[i].GetFqbn()) < strings.ToLower(boards[j].GetFqbn())
+		return strings.ToLower(boards[i].Fqbn) < strings.ToLower(boards[j].Fqbn)
 	})
 
 	// Put Arduino boards before others in case there are non Arduino boards with identical VID:PID combination
 	sort.SliceStable(boards, func(i, j int) bool {
-		if boards[i].GetPlatform().GetMetadata().GetMaintainer() == "Arduino" && boards[j].GetPlatform().GetMetadata().GetMaintainer() != "Arduino" {
+		if boards[i].Platform.Maintainer == "Arduino" && boards[j].Platform.Maintainer != "Arduino" {
 			return true
 		}
 		return false
@@ -205,7 +203,7 @@ func identify(pme *packagemanager.Explorer, port *discovery.Port) ([]*rpc.BoardL
 // In case of errors partial results from discoveries that didn't fail
 // are returned.
 func List(req *rpc.BoardListRequest) (r []*rpc.DetectedPort, discoveryStartErrors []error, e error) {
-	pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+	pme, release := commands.GetPackageManagerExplorer(req)
 	if pme == nil {
 		return nil, nil, &arduino.InvalidInstanceError{}
 	}
@@ -246,8 +244,8 @@ func List(req *rpc.BoardListRequest) (r []*rpc.DetectedPort, discoveryStartError
 }
 
 func hasMatchingBoard(b *rpc.DetectedPort, fqbnFilter *cores.FQBN) bool {
-	for _, detectedBoard := range b.GetMatchingBoards() {
-		detectedFqbn, err := cores.ParseFQBN(detectedBoard.GetFqbn())
+	for _, detectedBoard := range b.MatchingBoards {
+		detectedFqbn, err := cores.ParseFQBN(detectedBoard.Fqbn)
 		if err != nil {
 			continue
 		}
@@ -259,22 +257,23 @@ func hasMatchingBoard(b *rpc.DetectedPort, fqbnFilter *cores.FQBN) bool {
 }
 
 // Watch returns a channel that receives boards connection and disconnection events.
-func Watch(ctx context.Context, req *rpc.BoardListWatchRequest) (<-chan *rpc.BoardListWatchResponse, error) {
-	pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+// It also returns a callback function that must be used to stop and dispose the watch.
+func Watch(req *rpc.BoardListWatchRequest) (<-chan *rpc.BoardListWatchResponse, func(), error) {
+	pme, release := commands.GetPackageManagerExplorer(req)
 	if pme == nil {
-		return nil, &arduino.InvalidInstanceError{}
+		return nil, nil, &arduino.InvalidInstanceError{}
 	}
 	defer release()
 	dm := pme.DiscoveryManager()
 
 	watcher, err := dm.Watch()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		<-ctx.Done()
-		logrus.Trace("closed watch")
 		watcher.Close()
 	}()
 
@@ -302,5 +301,5 @@ func Watch(ctx context.Context, req *rpc.BoardListWatchRequest) (<-chan *rpc.Boa
 		}
 	}()
 
-	return outChan, nil
+	return outChan, cancel, nil
 }

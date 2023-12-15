@@ -1,5 +1,5 @@
 ---
-name: golang.org/x/text/internal/utf8internal
+name: golang.org/x/text/inter/utf8internal
 version: v0.14.0
 type: go
 summary: Package utf8internal contains low-level utf8-related constants, tables, etc.

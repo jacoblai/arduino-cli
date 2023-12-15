@@ -1,8 +1,8 @@
 ---
-name: google.golang.org/protobuf/internal/encoding/json
+name: google.golang.org/protobuf/inter/encoding/json
 version: v1.31.0
 type: go
-summary: 
+summary:
 homepage: https://pkg.go.dev/google.golang.org/protobuf/internal/encoding/json
 license: other
 licenses:

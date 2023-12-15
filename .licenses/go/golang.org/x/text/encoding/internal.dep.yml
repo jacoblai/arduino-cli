@@ -1,8 +1,8 @@
 ---
-name: golang.org/x/text/encoding/internal
+name: golang.org/x/text/encoding/inter
 version: v0.14.0
 type: go
-summary: Package internal contains code that is shared among encoding implementations.
+summary: Package inter contains code that is shared among encoding implementations.
 homepage: https://pkg.go.dev/golang.org/x/text/encoding/internal
 license: other
 licenses:

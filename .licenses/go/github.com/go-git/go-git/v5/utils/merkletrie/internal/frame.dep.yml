@@ -1,8 +1,8 @@
 ---
-name: github.com/go-git/go-git/v5/utils/merkletrie/internal/frame
+name: github.com/go-git/go-git/v5/utils/merkletrie/inter/frame
 version: v5.4.2
 type: go
-summary: 
+summary:
 homepage: https://pkg.go.dev/github.com/go-git/go-git/v5/utils/merkletrie/internal/frame
 license: apache-2.0
 licenses:

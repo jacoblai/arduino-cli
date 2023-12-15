@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/protobuf/internal/filetype
+name: google.golang.org/protobuf/inter/filetype
 version: v1.31.0
 type: go
 summary: Package filetype provides functionality for wrapping descriptors with Go

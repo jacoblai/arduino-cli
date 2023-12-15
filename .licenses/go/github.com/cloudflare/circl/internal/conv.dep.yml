@@ -1,5 +1,5 @@
 ---
-name: github.com/cloudflare/circl/internal/conv
+name: github.com/cloudflare/circl/inter/conv
 version: v1.3.3
 type: go
 summary:

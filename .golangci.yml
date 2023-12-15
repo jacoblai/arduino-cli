@@ -101,7 +101,7 @@ issues:
       text: "G501"
     # G112: Potential Slowloris Attack because ReadHeaderTimeout is not configured in the http.Server
     - linters: [gosec]
-      path: internal/integrationtest/
+      path: inter/integrationtest/
       text: "G112"
     # G204: Subprocess launched with a potential tainted input or cmd arguments
     - linters: [gosec]
@@ -123,15 +123,15 @@ issues:
       path: arduino/resources/download.go
       text: "empty-block"
     - linters: [revive]
-      path: arduino/builder/internal/progress/progress_test.go
+      path: arduino/builder/inter/progress/progress_test.go
       text: "empty-block"
     - linters: [revive]
-      path: internal/algorithms/channels.go
+      path: inter/algorithms/channels.go
       text: "empty-block"
 
     # Run linters only on specific path
-    - path-except: internal/cli/
+    - path-except: inter/cli/
       linters:
         - forbidigo
-    - path: internal/cli/feedback/
+    - path: inter/cli/feedback/
       linters: [forbidigo]

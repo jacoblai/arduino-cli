@@ -1,5 +1,5 @@
 ---
-name: golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
+name: golang.org/x/crypto/ssh/inter/bcrypt_pbkdf
 version: v0.14.0
 type: go
 summary: Package bcrypt_pbkdf implements bcrypt_pbkdf(3) from OpenBSD.

@@ -21,7 +21,6 @@ import (
 	"github.com/jacoblai/arduino-cli/arduino"
 	"github.com/jacoblai/arduino-cli/arduino/cores/packagemanager"
 	"github.com/jacoblai/arduino-cli/commands"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
@@ -30,7 +29,7 @@ func PlatformUninstall(ctx context.Context, req *rpc.PlatformUninstallRequest, t
 	if err := platformUninstall(ctx, req, taskCB); err != nil {
 		return nil, err
 	}
-	if err := commands.Init(&rpc.InitRequest{Instance: req.GetInstance()}, nil); err != nil {
+	if err := commands.Init(&rpc.InitRequest{Instance: req.Instance}, nil); err != nil {
 		return nil, err
 	}
 	return &rpc.PlatformUninstallResponse{}, nil
@@ -38,15 +37,15 @@ func PlatformUninstall(ctx context.Context, req *rpc.PlatformUninstallRequest, t
 
 // platformUninstall is the implementation of platform unistaller
 func platformUninstall(ctx context.Context, req *rpc.PlatformUninstallRequest, taskCB rpc.TaskProgressCB) error {
-	pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+	pme, release := commands.GetPackageManagerExplorer(req)
 	if pme == nil {
 		return &arduino.InvalidInstanceError{}
 	}
 	defer release()
 
 	ref := &packagemanager.PlatformReference{
-		Package:              req.GetPlatformPackage(),
-		PlatformArchitecture: req.GetArchitecture(),
+		Package:              req.PlatformPackage,
+		PlatformArchitecture: req.Architecture,
 	}
 	if ref.PlatformVersion == nil {
 		platform := pme.FindPlatform(ref)
@@ -65,14 +64,14 @@ func platformUninstall(ctx context.Context, req *rpc.PlatformUninstallRequest, t
 		return &arduino.NotFoundError{Message: tr("Can't find dependencies for platform %s", ref), Cause: err}
 	}
 
-	if err := pme.UninstallPlatform(platform, taskCB, req.GetSkipPreUninstall()); err != nil {
+	if err := pme.UninstallPlatform(platform, taskCB); err != nil {
 		return err
 	}
 
 	for _, tool := range tools {
 		if !pme.IsToolRequired(tool) {
 			taskCB(&rpc.TaskProgress{Name: tr("Uninstalling %s, tool is no more required", tool)})
-			pme.UninstallTool(tool, taskCB, req.GetSkipPreUninstall())
+			pme.UninstallTool(tool, taskCB)
 		}
 	}
 

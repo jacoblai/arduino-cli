@@ -1,5 +1,5 @@
 ---
-name: github.com/ProtonMail/go-crypto/internal/byteutil
+name: github.com/ProtonMail/go-crypto/inter/byteutil
 version: v0.0.0-20230828082145-3c4c8a2d2371
 type: go
 summary:

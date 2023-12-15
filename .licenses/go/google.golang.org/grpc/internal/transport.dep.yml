@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/transport
+name: google.golang.org/grpc/inter/transport
 version: v1.59.0
 type: go
 summary: Package transport defines and implements message oriented communication channel

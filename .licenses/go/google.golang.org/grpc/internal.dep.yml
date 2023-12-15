@@ -1,8 +1,8 @@
 ---
-name: google.golang.org/grpc/internal
+name: google.golang.org/grpc/inter
 version: v1.59.0
 type: go
-summary: Package internal contains gRPC-internal code, to avoid polluting the godoc
+summary: Package inter contains gRPC-inter code, to avoid polluting the godoc
   of the top-level grpc package.
 homepage: https://pkg.go.dev/google.golang.org/grpc/internal
 license: apache-2.0

@@ -16,7 +16,6 @@
 package daemon
 
 import (
-	"errors"
 	"io"
 	"sync"
 	"time"
@@ -85,7 +84,7 @@ func consumeStreamFrom(reader func() ([]byte, error)) io.Reader {
 	go func() {
 		for {
 			if data, err := reader(); err != nil {
-				if errors.Is(err, io.EOF) {
+				if err == io.EOF {
 					w.Close()
 				} else {
 					w.CloseWithError(err)

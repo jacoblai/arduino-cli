@@ -86,10 +86,18 @@ func (s *ArduinoCoreServerImpl) BoardSearch(ctx context.Context, req *rpc.BoardS
 }
 
 // BoardListWatch FIXMEDOC
-func (s *ArduinoCoreServerImpl) BoardListWatch(req *rpc.BoardListWatchRequest, stream rpc.ArduinoCoreService_BoardListWatchServer) error {
+func (s *ArduinoCoreServerImpl) BoardListWatch(stream rpc.ArduinoCoreService_BoardListWatchServer) error {
 	syncSend := NewSynchronizedSend(stream.Send)
-	if req.GetInstance() == nil {
-		err := fmt.Errorf(tr("no instance specified"))
+	msg, err := stream.Recv()
+	if err == io.EOF {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	if msg.Instance == nil {
+		err = fmt.Errorf(tr("no instance specified"))
 		syncSend.Send(&rpc.BoardListWatchResponse{
 			EventType: "error",
 			Error:     err.Error(),
@@ -97,10 +105,32 @@ func (s *ArduinoCoreServerImpl) BoardListWatch(req *rpc.BoardListWatchRequest, s
 		return err
 	}
 
-	eventsChan, err := board.Watch(stream.Context(), req)
+	eventsChan, closeWatcher, err := board.Watch(msg)
 	if err != nil {
 		return convertErrorToRPCStatus(err)
 	}
+
+	go func() {
+		defer closeWatcher()
+		for {
+			msg, err := stream.Recv()
+			// Handle client closing the stream and eventual errors
+			if err == io.EOF {
+				logrus.Info("boards watcher stream closed")
+				return
+			}
+			if err != nil {
+				logrus.Infof("interrupting boards watcher: %v", err)
+				return
+			}
+
+			// Message received, does the client want to interrupt?
+			if msg != nil && msg.Interrupt {
+				logrus.Info("boards watcher interrupted by client")
+				return
+			}
+		}
+	}()
 
 	for event := range eventsChan {
 		if err := syncSend.Send(event); err != nil {
@@ -256,6 +286,12 @@ func (s *ArduinoCoreServerImpl) PlatformUpgrade(req *rpc.PlatformUpgradeRequest,
 func (s *ArduinoCoreServerImpl) PlatformSearch(ctx context.Context, req *rpc.PlatformSearchRequest) (*rpc.PlatformSearchResponse, error) {
 	resp, err := core.PlatformSearch(req)
 	return resp, convertErrorToRPCStatus(err)
+}
+
+// PlatformList FIXMEDOC
+func (s *ArduinoCoreServerImpl) PlatformList(ctx context.Context, req *rpc.PlatformListRequest) (*rpc.PlatformListResponse, error) {
+	platforms, err := core.PlatformList(req)
+	return platforms, convertErrorToRPCStatus(err)
 }
 
 // Upload FIXMEDOC
@@ -460,7 +496,7 @@ func (s *ArduinoCoreServerImpl) Monitor(stream rpc.ArduinoCoreService_MonitorSer
 			}
 			if conf := msg.GetPortConfiguration(); conf != nil {
 				for _, c := range conf.GetSettings() {
-					if err := portProxy.Config(c.GetSettingId(), c.GetValue()); err != nil {
+					if err := portProxy.Config(c.SettingId, c.Value); err != nil {
 						syncSend.Send(&rpc.MonitorResponse{Error: err.Error()})
 					}
 				}

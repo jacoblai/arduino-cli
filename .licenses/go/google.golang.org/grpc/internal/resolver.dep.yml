@@ -1,8 +1,8 @@
 ---
-name: google.golang.org/grpc/internal/resolver
+name: google.golang.org/grpc/inter/resolver
 version: v1.59.0
 type: go
-summary: Package resolver provides internal resolver-related functionality.
+summary: Package resolver provides inter resolver-related functionality.
 homepage: https://pkg.go.dev/google.golang.org/grpc/internal/resolver
 license: apache-2.0
 licenses:

@@ -17,6 +17,8 @@ package builder
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
@@ -26,11 +28,40 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func tmpDirOrDie() *paths.Path {
+	dir, err := os.MkdirTemp(os.TempDir(), "builder_test")
+	if err != nil {
+		panic(fmt.Sprintf("error creating tmp dir: %v", err))
+	}
+	return paths.New(dir)
+}
+
+func TestSaveSketch(t *testing.T) {
+	sketchName := t.Name() + ".ino"
+	outName := sketchName + ".cpp"
+	sketchFile := filepath.Join("testdata", sketchName)
+	tmp := tmpDirOrDie()
+	defer tmp.RemoveAll()
+	source, err := os.ReadFile(sketchFile)
+	if err != nil {
+		t.Fatalf("unable to read golden file %s: %v", sketchFile, err)
+	}
+
+	SketchSaveItemCpp(paths.New(sketchName), source, tmp)
+
+	out, err := tmp.Join(outName).ReadFile()
+	if err != nil {
+		t.Fatalf("unable to read output file %s: %v", outName, err)
+	}
+
+	require.Equal(t, source, out)
+}
+
 func TestMergeSketchSources(t *testing.T) {
 	// borrow the sketch from TestLoadSketchFolder to avoid boilerplate
-	sk, err := sketch.New(paths.New("testdata", "TestLoadSketchFolder"))
+	s, err := sketch.New(paths.New("testdata", "TestLoadSketchFolder"))
 	require.Nil(t, err)
-	require.NotNil(t, sk)
+	require.NotNil(t, s)
 
 	// load expected result
 	suffix := ".txt"
@@ -38,71 +69,66 @@ func TestMergeSketchSources(t *testing.T) {
 		suffix = "_win.txt"
 	}
 	mergedPath := paths.New("testdata", t.Name()+suffix)
-	require.NoError(t, mergedPath.ToAbs())
 	mergedBytes, err := mergedPath.ReadFile()
-	require.NoError(t, err, "reading golden file %s: %v", mergedPath, err)
+	if err != nil {
+		t.Fatalf("unable to read golden file %s: %v", mergedPath, err)
+	}
 
+	mergedPath.ToAbs()
 	pathToGoldenSource := mergedPath.Parent().Parent().String()
 	if runtime.GOOS == "windows" {
 		pathToGoldenSource = strings.ReplaceAll(pathToGoldenSource, `\`, `\\`)
 	}
 	mergedSources := strings.ReplaceAll(string(mergedBytes), "%s", pathToGoldenSource)
 
-	b := Builder{sketch: sk}
-
-	offset, source, err := b.sketchMergeSources(nil)
+	offset, source, err := sketchMergeSources(s, nil)
 	require.Nil(t, err)
 	require.Equal(t, 2, offset)
 	require.Equal(t, mergedSources, source)
 }
 
 func TestMergeSketchSourcesArduinoIncluded(t *testing.T) {
-	sk, err := sketch.New(paths.New("testdata", t.Name()))
+	s, err := sketch.New(paths.New("testdata", t.Name()))
 	require.Nil(t, err)
-	require.NotNil(t, sk)
+	require.NotNil(t, s)
 
 	// ensure not to include Arduino.h when it's already there
-	b := Builder{sketch: sk}
-
-	_, source, err := b.sketchMergeSources(nil)
+	_, source, err := sketchMergeSources(s, nil)
 	require.Nil(t, err)
 	require.Equal(t, 1, strings.Count(source, "<Arduino.h>"))
 }
 
 func TestCopyAdditionalFiles(t *testing.T) {
-	tmp, err := paths.MkTempDir("", "")
-	require.NoError(t, err)
+	tmp := tmpDirOrDie()
 	defer tmp.RemoveAll()
 
 	// load the golden sketch
-	sk1, err := sketch.New(paths.New("testdata", t.Name()))
+	s1, err := sketch.New(paths.New("testdata", t.Name()))
 	require.Nil(t, err)
-	require.Equal(t, sk1.AdditionalFiles.Len(), 1)
-
-	b := Builder{sketch: sk1}
+	require.Equal(t, s1.AdditionalFiles.Len(), 1)
 
 	// copy the sketch over, create a fake main file we don't care about it
 	// but we need it for `SketchLoad` to succeed later
-	err = b.sketchCopyAdditionalFiles(tmp, nil)
+	err = sketchCopyAdditionalFiles(s1, tmp, nil)
 	require.Nil(t, err)
 	fakeIno := tmp.Join(fmt.Sprintf("%s.ino", tmp.Base()))
 	require.Nil(t, fakeIno.WriteFile([]byte{}))
 
 	// compare
-	sk2, err := sketch.New(tmp)
+	s2, err := sketch.New(tmp)
 	require.Nil(t, err)
-	require.Equal(t, sk2.AdditionalFiles.Len(), 1)
+	require.Equal(t, s2.AdditionalFiles.Len(), 1)
 
 	// save file info
-	info1, err := sk2.AdditionalFiles[0].Stat()
+	info1, err := s2.AdditionalFiles[0].Stat()
 	require.Nil(t, err)
 
 	// copy again
-	err = b.sketchCopyAdditionalFiles(tmp, nil)
+	err = sketchCopyAdditionalFiles(s1, tmp, nil)
 	require.Nil(t, err)
 
 	// verify file hasn't changed
-	info2, err := sk2.AdditionalFiles[0].Stat()
+	info2, err := s2.AdditionalFiles[0].Stat()
 	require.NoError(t, err)
 	require.Equal(t, info1.ModTime(), info2.ModTime())
 }

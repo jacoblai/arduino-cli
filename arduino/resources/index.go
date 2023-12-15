@@ -17,7 +17,6 @@ package resources
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"path"
 	"strings"
@@ -34,24 +33,18 @@ import (
 
 // IndexResource is a reference to an index file URL with an optional signature.
 type IndexResource struct {
-	URL                          *url.URL
-	SignatureURL                 *url.URL
-	EnforceSignatureVerification bool
+	URL          *url.URL
+	SignatureURL *url.URL
 }
 
 // IndexFileName returns the index file name as it is saved in data dir (package_xxx_index.json).
 func (res *IndexResource) IndexFileName() (string, error) {
 	filename := path.Base(res.URL.Path) // == package_index.json[.gz] || packacge_index.tar.bz2
-	if filename == "." || filename == "" || filename == "/" {
+	if filename == "." || filename == "" {
 		return "", &arduino.InvalidURLError{}
 	}
-	switch {
-	case strings.HasSuffix(filename, ".json"):
-		return filename, nil
-	case strings.HasSuffix(filename, ".gz"):
-		return strings.TrimSuffix(filename, ".gz"), nil
-	case strings.HasSuffix(filename, ".tar.bz2"):
-		return strings.TrimSuffix(filename, ".tar.bz2") + ".json", nil
+	if i := strings.Index(filename, "."); i != -1 {
+		filename = filename[:i]
 	}
 	return filename + ".json", nil
 }
@@ -146,10 +139,6 @@ func (res *IndexResource) Download(destDir *paths.Path, downloadCB rpc.DownloadP
 			return &arduino.PermissionDeniedError{Message: tr("Error verifying signature"), Cause: err}
 		} else if !valid {
 			return &arduino.SignatureVerificationFailedError{File: res.URL.String()}
-		}
-	} else {
-		if res.EnforceSignatureVerification {
-			return &arduino.PermissionDeniedError{Message: tr("Error verifying signature"), Cause: errors.New(tr("missing signature"))}
 		}
 	}
 

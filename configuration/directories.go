@@ -68,7 +68,7 @@ func PackagesDir(settings *viper.Viper) *paths.Path {
 // (it contains all the platforms and libraries used to compile a sketch
 // using profiles)
 func ProfilesCacheDir(settings *viper.Viper) *paths.Path {
-	return DataDir(settings).Join("internal")
+	return DataDir(settings).Join("inter")
 }
 
 // DataDir returns the full path to the data directory

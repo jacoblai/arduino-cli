@@ -19,7 +19,7 @@ version: "3"
 
 vars:
   CONTAINER: "docker.elastic.co/beats-dev/golang-crossbuild"
-  GO_VERSION: "1.21.1"
+  GO_VERSION: "1.20.1"
 
 tasks:
   Windows_32bit:
@@ -152,16 +152,16 @@ tasks:
       #   [signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x51ae53]
       #
       #   goroutine 1 [running]:
-      #   cmd/link/internal/loader.(*Loader).SymName(0xc000095c00, 0x0, 0xc0000958d8, 0x5a0ac)
-      #           /usr/local/go/src/cmd/link/internal/loader/loader.go:684 +0x53
-      #   cmd/link/internal/ld.dynrelocsym2(0xc000095880, 0x5a0ac)
-      #           /usr/local/go/src/cmd/link/internal/ld/data.go:777 +0x295
-      #   cmd/link/internal/ld.(*dodataState).dynreloc2(0xc007df9800, 0xc000095880)
-      #           /usr/local/go/src/cmd/link/internal/ld/data.go:794 +0x89
-      #   cmd/link/internal/ld.(*Link).dodata2(0xc000095880, 0xc007d00000, 0x60518, 0x60518)
-      #           /usr/local/go/src/cmd/link/internal/ld/data.go:1434 +0x4d4
-      #   cmd/link/internal/ld.Main(0x8729a0, 0x4, 0x8, 0x1, 0xd, 0xe, 0x0, 0x0, 0x6d7737, 0x12, ...)
-      #           /usr/local/go/src/cmd/link/internal/ld/main.go:302 +0x123a
+      #   cmd/link/inter/loader.(*Loader).SymName(0xc000095c00, 0x0, 0xc0000958d8, 0x5a0ac)
+      #           /usr/local/go/src/cmd/link/inter/loader/loader.go:684 +0x53
+      #   cmd/link/inter/ld.dynrelocsym2(0xc000095880, 0x5a0ac)
+      #           /usr/local/go/src/cmd/link/inter/ld/data.go:777 +0x295
+      #   cmd/link/inter/ld.(*dodataState).dynreloc2(0xc007df9800, 0xc000095880)
+      #           /usr/local/go/src/cmd/link/inter/ld/data.go:794 +0x89
+      #   cmd/link/inter/ld.(*Link).dodata2(0xc000095880, 0xc007d00000, 0x60518, 0x60518)
+      #           /usr/local/go/src/cmd/link/inter/ld/data.go:1434 +0x4d4
+      #   cmd/link/inter/ld.Main(0x8729a0, 0x4, 0x8, 0x1, 0xd, 0xe, 0x0, 0x0, 0x6d7737, 0x12, ...)
+      #           /usr/local/go/src/cmd/link/inter/ld/main.go:302 +0x123a
       #   main.main()
       #           /usr/local/go/src/cmd/link/main.go:68 +0x1dc
       #   Error: failed building for linux/armv6: exit status 2

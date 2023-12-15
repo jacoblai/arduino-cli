@@ -23,14 +23,15 @@ import (
 	"github.com/jacoblai/arduino-cli/arduino"
 	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesindex"
 	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesmanager"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/arduino/utils"
+	"github.com/jacoblai/arduino-cli/commands"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	semver "go.bug.st/relaxed-semver"
 )
 
 // LibrarySearch FIXMEDOC
 func LibrarySearch(ctx context.Context, req *rpc.LibrarySearchRequest) (*rpc.LibrarySearchResponse, error) {
-	lm := instances.GetLibraryManager(req.GetInstance())
+	lm := commands.GetLibraryManager(req)
 	if lm == nil {
 		return nil, &arduino.InvalidInstanceError{}
 	}
@@ -40,10 +41,21 @@ func LibrarySearch(ctx context.Context, req *rpc.LibrarySearchRequest) (*rpc.Lib
 func searchLibrary(req *rpc.LibrarySearchRequest, lm *librariesmanager.LibrariesManager) *rpc.LibrarySearchResponse {
 	res := []*rpc.SearchedLibrary{}
 	query := req.GetSearchArgs()
-	matcher := MatcherFromQueryString(query)
+	if query == "" {
+		query = req.GetQuery()
+	}
+	queryTerms := utils.SearchTermsFromQueryString(query)
 
 	for _, lib := range lm.Index.Libraries {
-		if matcher(lib) {
+		toTest := lib.Name + " " +
+			lib.Latest.Paragraph + " " +
+			lib.Latest.Sentence + " " +
+			lib.Latest.Author + " "
+		for _, include := range lib.Latest.ProvidesIncludes {
+			toTest += include + " "
+		}
+
+		if utils.Match(toTest, queryTerms) {
 			res = append(res, indexLibraryToRPCSearchLibrary(lib, req.GetOmitReleasesDetails()))
 		}
 	}
@@ -51,14 +63,14 @@ func searchLibrary(req *rpc.LibrarySearchRequest, lm *librariesmanager.Libraries
 	// get a sorted slice of results
 	sort.Slice(res, func(i, j int) bool {
 		// Sort by name, but bubble up exact matches
-		equalsI := strings.EqualFold(res[i].GetName(), query)
-		equalsJ := strings.EqualFold(res[j].GetName(), query)
+		equalsI := strings.EqualFold(res[i].Name, query)
+		equalsJ := strings.EqualFold(res[j].Name, query)
 		if equalsI && !equalsJ {
 			return true
 		} else if !equalsI && equalsJ {
 			return false
 		}
-		return res[i].GetName() < res[j].GetName()
+		return res[i].Name < res[j].Name
 	})
 
 	return &rpc.LibrarySearchResponse{Libraries: res, Status: rpc.LibrarySearchStatus_LIBRARY_SEARCH_STATUS_SUCCESS}
@@ -118,7 +130,7 @@ func getLibraryParameters(rel *librariesindex.Release) *rpc.LibraryRelease {
 	}
 }
 
-func getLibraryDependenciesParameter(deps []*librariesindex.Dependency) []*rpc.LibraryDependency {
+func getLibraryDependenciesParameter(deps []semver.Dependency) []*rpc.LibraryDependency {
 	res := []*rpc.LibraryDependency{}
 	for _, dep := range deps {
 		res = append(res, &rpc.LibraryDependency{

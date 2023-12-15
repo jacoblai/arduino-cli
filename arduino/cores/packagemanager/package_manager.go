@@ -121,42 +121,6 @@ func (pmb *Builder) Build() *PackageManager {
 	}
 }
 
-// calculate Compatible PlatformRelease
-func (pmb *Builder) calculateCompatibleReleases() {
-	for _, op := range pmb.packages {
-		for _, p := range op.Platforms {
-			for _, pr := range p.Releases {
-				platformHasAllCompatibleTools := func() bool {
-					for _, td := range pr.ToolDependencies {
-						if td == nil {
-							return false
-						}
-
-						_, ok := pmb.packages[td.ToolPackager]
-						if !ok {
-							return false
-						}
-						tool := pmb.packages[td.ToolPackager].Tools[td.ToolName]
-						if tool == nil {
-							return false
-						}
-						tr := tool.Releases[td.ToolVersion.NormalizedString()]
-						if tr == nil {
-							return false
-						}
-
-						if tr.GetCompatibleFlavour() == nil {
-							return false
-						}
-					}
-					return true
-				}
-				pr.Compatible = platformHasAllCompatibleTools()
-			}
-		}
-	}
-}
-
 // NewBuilder creates a Builder with the same configuration
 // of this PackageManager. A "commit" function callback is returned: calling
 // this function will make the builder write the new configuration into this
@@ -164,7 +128,6 @@ func (pmb *Builder) calculateCompatibleReleases() {
 func (pm *PackageManager) NewBuilder() (builder *Builder, commit func()) {
 	pmb := NewBuilder(pm.IndexDir, pm.PackagesDir, pm.DownloadDir, pm.tempDir, pm.userAgent)
 	return pmb, func() {
-		pmb.calculateCompatibleReleases()
 		pmb.BuildIntoExistingPackageManager(pm)
 	}
 }
@@ -216,7 +179,7 @@ func (pmb *Builder) GetOrCreatePackage(packager string) *cores.Package {
 	return pmb.packages.GetOrCreatePackage(packager)
 }
 
-// GetPackages returns the internal packages structure for direct usage.
+// GetPackages returns the inter packages structure for direct usage.
 // Deprecated: do not access packages directly, but use specific Explorer methods when possible.
 func (pme *Explorer) GetPackages() cores.Packages {
 	return pme.packages
@@ -229,8 +192,8 @@ func (pme *Explorer) GetCustomGlobalProperties() *properties.Map {
 }
 
 // FindPlatformReleaseProvidingBoardsWithVidPid FIXMEDOC
-func (pme *Explorer) FindPlatformReleaseProvidingBoardsWithVidPid(vid, pid string) []*cores.Platform {
-	res := []*cores.Platform{}
+func (pme *Explorer) FindPlatformReleaseProvidingBoardsWithVidPid(vid, pid string) []*cores.PlatformRelease {
+	res := []*cores.PlatformRelease{}
 	for _, targetPackage := range pme.packages {
 		for _, targetPlatform := range targetPackage.Platforms {
 			platformRelease := targetPlatform.GetLatestRelease()
@@ -239,7 +202,7 @@ func (pme *Explorer) FindPlatformReleaseProvidingBoardsWithVidPid(vid, pid strin
 			}
 			for _, boardManifest := range platformRelease.BoardsManifest {
 				if boardManifest.HasUsbID(vid, pid) {
-					res = append(res, targetPlatform)
+					res = append(res, platformRelease)
 					break
 				}
 			}
@@ -356,7 +319,7 @@ func (pme *Explorer) ResolveFQBN(fqbn *cores.FQBN) (
 	}
 
 	// Create the build properties map by overlaying the properties of the
-	// referenced platform properties, the board platform properties and the
+	// referenced platform propeties, the board platform properties and the
 	// board specific properties.
 	buildProperties := properties.NewMap()
 	buildProperties.Merge(variantPlatformRelease.Properties)
@@ -718,7 +681,7 @@ func (pme *Explorer) FindToolsRequiredFromPlatformRelease(platform *cores.Platfo
 	requiredTools := []*cores.ToolRelease{}
 	platform.ToolDependencies.Sort()
 	for _, toolDep := range platform.ToolDependencies {
-		pme.log.WithField("tool", toolDep).Debugf("Required tool")
+		pme.log.WithField("tool", toolDep).Infof("Required tool")
 		tool := pme.FindToolDependency(toolDep)
 		if tool == nil {
 			return nil, fmt.Errorf(tr("tool release not found: %s"), toolDep)
@@ -824,7 +787,7 @@ func (pme *Explorer) FindToolsRequiredForBuild(platform, buildPlatform *cores.Pl
 	// that the returned array is sorted by version.
 	platform.ToolDependencies.Sort()
 	for _, toolDep := range platform.ToolDependencies {
-		pme.log.WithField("tool", toolDep).Debugf("Required tool")
+		pme.log.WithField("tool", toolDep).Infof("Required tool")
 		tool := pme.FindToolDependency(toolDep)
 		if tool == nil {
 			return nil, fmt.Errorf(tr("tool release not found: %s"), toolDep)

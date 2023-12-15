@@ -1,5 +1,5 @@
 ---
-name: golang.org/x/text/encoding/internal/identifier
+name: golang.org/x/text/encoding/inter/identifier
 version: v0.14.0
 type: go
 summary: Package identifier defines the contract between implementations of Encoding

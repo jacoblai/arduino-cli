@@ -20,13 +20,13 @@ import (
 
 	"github.com/jacoblai/arduino-cli/arduino"
 	"github.com/jacoblai/arduino-cli/arduino/cores"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/commands"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // ListProgrammersAvailableForUpload FIXMEDOC
 func ListProgrammersAvailableForUpload(ctx context.Context, req *rpc.ListProgrammersAvailableForUploadRequest) (*rpc.ListProgrammersAvailableForUploadResponse, error) {
-	pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+	pme, release := commands.GetPackageManagerExplorer(req)
 	if pme == nil {
 		return nil, &arduino.InvalidInstanceError{}
 	}

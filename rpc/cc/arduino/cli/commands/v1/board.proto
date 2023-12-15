@@ -59,13 +59,12 @@ message BoardDetailsResponse {
   repeated ConfigOption config_options = 11;
   // List of programmers supported by the board
   repeated Programmer programmers = 13;
-  reserved 14;
+  // Set to true if the board supports debugging
+  bool debugging_supported = 14;
   // Identifying information for the board (e.g., USB VID/PID).
   repeated BoardIdentificationProperties identification_properties = 15;
   // Board build properties used for compiling
   repeated string build_properties = 16;
-  // Default programmer for the board
-  string default_programmer_id = 17;
 }
 
 message BoardIdentificationProperties {
@@ -192,6 +191,8 @@ message BoardListAllResponse {
 message BoardListWatchRequest {
   // Arduino Core Service instance from the `Init` response.
   Instance instance = 1;
+  // Set this to true to stop the discovery process
+  bool interrupt = 2;
 }
 
 message BoardListWatchResponse {

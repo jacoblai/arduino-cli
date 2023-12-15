@@ -22,14 +22,13 @@ import (
 	"github.com/jacoblai/arduino-cli/arduino"
 	"github.com/jacoblai/arduino-cli/arduino/cores/packagemanager"
 	"github.com/jacoblai/arduino-cli/commands"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // PlatformInstall FIXMEDOC
 func PlatformInstall(ctx context.Context, req *rpc.PlatformInstallRequest, downloadCB rpc.DownloadProgressCB, taskCB rpc.TaskProgressCB) (*rpc.PlatformInstallResponse, error) {
 	install := func() error {
-		pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+		pme, release := commands.GetPackageManagerExplorer(req)
 		if pme == nil {
 			return &arduino.InvalidInstanceError{}
 		}
@@ -41,8 +40,8 @@ func PlatformInstall(ctx context.Context, req *rpc.PlatformInstallRequest, downl
 		}
 
 		ref := &packagemanager.PlatformReference{
-			Package:              req.GetPlatformPackage(),
-			PlatformArchitecture: req.GetArchitecture(),
+			Package:              req.PlatformPackage,
+			PlatformArchitecture: req.Architecture,
 			PlatformVersion:      version,
 		}
 		platformRelease, tools, err := pme.FindPlatformReleaseDependencies(ref)
@@ -64,7 +63,7 @@ func PlatformInstall(ctx context.Context, req *rpc.PlatformInstallRequest, downl
 			}
 		}
 
-		if err := pme.DownloadAndInstallPlatformAndTools(platformRelease, tools, downloadCB, taskCB, req.GetSkipPostInstall(), req.GetSkipPreUninstall()); err != nil {
+		if err := pme.DownloadAndInstallPlatformAndTools(platformRelease, tools, downloadCB, taskCB, req.GetSkipPostInstall()); err != nil {
 			return err
 		}
 
@@ -74,7 +73,7 @@ func PlatformInstall(ctx context.Context, req *rpc.PlatformInstallRequest, downl
 	if err := install(); err != nil {
 		return nil, err
 	}
-	if err := commands.Init(&rpc.InitRequest{Instance: req.GetInstance()}, nil); err != nil {
+	if err := commands.Init(&rpc.InitRequest{Instance: req.Instance}, nil); err != nil {
 		return nil, err
 	}
 	return &rpc.PlatformInstallResponse{}, nil

@@ -1,5 +1,5 @@
 ---
-name: github.com/klauspost/compress/internal/cpuinfo
+name: github.com/klauspost/compress/inter/cpuinfo
 version: v1.17.0
 type: go
 summary: Package cpuinfo gives runtime info about the current CPU.

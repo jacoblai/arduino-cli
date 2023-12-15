@@ -241,10 +241,3 @@ func (b *Board) IdentifyBoardConfiguration(query *properties.Map) *properties.Ma
 	}
 	return res
 }
-
-// GetDefaultProgrammerID returns the board's default programmer as
-// defined in 'programmer.default' property of the board. If the board
-// has no default programmer the empty string is returned.
-func (b *Board) GetDefaultProgrammerID() string {
-	return b.Properties.Get("programmer.default")
-}

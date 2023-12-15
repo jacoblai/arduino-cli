@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/envconfig
+name: google.golang.org/grpc/inter/envconfig
 version: v1.59.0
 type: go
 summary: Package envconfig contains grpc settings configured by environment variables.

@@ -21,7 +21,6 @@ import (
 	"github.com/jacoblai/arduino-cli/arduino"
 	"github.com/jacoblai/arduino-cli/arduino/cores/packagemanager"
 	"github.com/jacoblai/arduino-cli/commands"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
 	"github.com/jacoblai/arduino-cli/i18n"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
@@ -30,7 +29,7 @@ var tr = i18n.Tr
 
 // PlatformDownload FIXMEDOC
 func PlatformDownload(ctx context.Context, req *rpc.PlatformDownloadRequest, downloadCB rpc.DownloadProgressCB) (*rpc.PlatformDownloadResponse, error) {
-	pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+	pme, release := commands.GetPackageManagerExplorer(req)
 	if pme == nil {
 		return nil, &arduino.InvalidInstanceError{}
 	}
@@ -42,8 +41,8 @@ func PlatformDownload(ctx context.Context, req *rpc.PlatformDownloadRequest, dow
 	}
 
 	ref := &packagemanager.PlatformReference{
-		Package:              req.GetPlatformPackage(),
-		PlatformArchitecture: req.GetArchitecture(),
+		Package:              req.PlatformPackage,
+		PlatformArchitecture: req.Architecture,
 		PlatformVersion:      version,
 	}
 	platform, tools, err := pme.FindPlatformReleaseDependencies(ref)

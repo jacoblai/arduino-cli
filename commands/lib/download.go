@@ -22,7 +22,7 @@ import (
 	"github.com/jacoblai/arduino-cli/arduino/httpclient"
 	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesindex"
 	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesmanager"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/commands"
 	"github.com/jacoblai/arduino-cli/i18n"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/sirupsen/logrus"
@@ -35,7 +35,7 @@ var tr = i18n.Tr
 func LibraryDownload(ctx context.Context, req *rpc.LibraryDownloadRequest, downloadCB rpc.DownloadProgressCB) (*rpc.LibraryDownloadResponse, error) {
 	logrus.Info("Executing `arduino-cli lib download`")
 
-	lm := instances.GetLibraryManager(req.GetInstance())
+	lm := commands.GetLibraryManager(req)
 	if lm == nil {
 		return nil, &arduino.InvalidInstanceError{}
 	}

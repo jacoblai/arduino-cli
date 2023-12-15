@@ -25,7 +25,7 @@ import (
 	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesindex"
 	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesmanager"
 	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesresolver"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/commands"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
@@ -36,13 +36,13 @@ type installedLib struct {
 
 // LibraryList FIXMEDOC
 func LibraryList(ctx context.Context, req *rpc.LibraryListRequest) (*rpc.LibraryListResponse, error) {
-	pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+	pme, release := commands.GetPackageManagerExplorer(req)
 	if pme == nil {
 		return nil, &arduino.InvalidInstanceError{}
 	}
 	defer release()
 
-	lm := instances.GetLibraryManager(req.GetInstance())
+	lm := commands.GetLibraryManager(req)
 	if lm == nil {
 		return nil, &arduino.InvalidInstanceError{}
 	}

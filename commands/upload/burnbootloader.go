@@ -20,7 +20,7 @@ import (
 	"io"
 
 	"github.com/jacoblai/arduino-cli/arduino"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/commands"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/sirupsen/logrus"
 )
@@ -33,7 +33,7 @@ func BurnBootloader(ctx context.Context, req *rpc.BurnBootloaderRequest, outStre
 		WithField("programmer", req.GetProgrammer()).
 		Trace("BurnBootloader started", req.GetFqbn())
 
-	pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+	pme, release := commands.GetPackageManagerExplorer(req)
 	if pme == nil {
 		return nil, &arduino.InvalidInstanceError{}
 	}

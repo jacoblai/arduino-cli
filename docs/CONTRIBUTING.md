@@ -70,7 +70,7 @@ submitting a PR:
 
 To build the Arduino CLI from sources you need the following tools to be available in your local environment:
 
-- [Go][1] version 1.21 or later
+- [Go][1] version 1.20 or later
 - [Taskfile][2] to help you run the most common tasks from the command line
 
 If you want to run integration tests you will also need:
@@ -80,9 +80,9 @@ If you want to run integration tests you will also need:
 If you're working on the gRPC interface you will also have to:
 
 - download and install the [protoc][6] compiler (use the version required to match the generated code, please note that
-  the latest releases does not follow semantic versioning anymore so, for example, the version 4.24.3 must be searched
-  as 24.3 dropping the major number)
-- install `protoc-gen-go` using: `go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31.0` (use the version
+  the latest releases does not follow semantic versioning anymore so, for example, the version 4.23.2 must be searched
+  as 23.2 dropping the major number)
+- install `protoc-gen-go` using: `go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.30.0` (use the version
   required to match the generated code)
 - install `protoc-gen-go-grpc` using: `go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0` (use the version
   required to match the generated code)
@@ -183,13 +183,13 @@ This will run the integration tests automatically.
 To run specific packages you must run `go test`.
 
 ```shell
-go test -v github.com/jacoblai/arduino-cli/internal/integrationtest/lib
+go test -v github.com/jacoblai/arduino-cli/inter/integrationtest/lib
 ```
 
 To run very specific test functions:
 
 ```shell
-go test -v github.com/jacoblai/arduino-cli/internal/integrationtest/lib -run TestLibUpgradeCommand
+go test -v github.com/jacoblai/arduino-cli/inter/integrationtest/lib -run TestLibUpgradeCommand
 ```
 
 ### Dependency license metadata

@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/resolver/dns
+name: google.golang.org/grpc/inter/resolver/dns
 version: v1.59.0
 type: go
 summary: Package dns implements a dns resolver to be installed as the default resolver

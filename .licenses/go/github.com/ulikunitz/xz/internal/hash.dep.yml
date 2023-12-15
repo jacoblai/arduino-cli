@@ -1,5 +1,5 @@
 ---
-name: github.com/ulikunitz/xz/internal/hash
+name: github.com/ulikunitz/xz/inter/hash
 version: v0.5.11
 type: go
 summary: Package hash provides rolling hashes.

@@ -32,9 +32,10 @@ import (
 	"github.com/jacoblai/arduino-cli/arduino/globals"
 	"github.com/jacoblai/arduino-cli/arduino/serialutils"
 	"github.com/jacoblai/arduino-cli/arduino/sketch"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/commands"
+	"github.com/jacoblai/arduino-cli/executils"
 	"github.com/jacoblai/arduino-cli/i18n"
-	f "github.com/jacoblai/arduino-cli/patch/algorithms"
+	f "github.com/jacoblai/arduino-cli/inter/algorithms"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -45,11 +46,11 @@ var tr = i18n.Tr
 // SupportedUserFields returns a SupportedUserFieldsResponse containing all the UserFields supported
 // by the upload tools needed by the board using the protocol specified in SupportedUserFieldsRequest.
 func SupportedUserFields(ctx context.Context, req *rpc.SupportedUserFieldsRequest) (*rpc.SupportedUserFieldsResponse, error) {
-	if req.GetProtocol() == "" {
+	if req.Protocol == "" {
 		return nil, &arduino.MissingPortProtocolError{}
 	}
 
-	pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+	pme, release := commands.GetPackageManagerExplorer(req)
 	defer release()
 
 	if pme == nil {
@@ -71,7 +72,7 @@ func SupportedUserFields(ctx context.Context, req *rpc.SupportedUserFieldsReques
 		return nil, &arduino.UnknownFQBNError{Cause: err}
 	}
 
-	toolID, err := getToolID(boardProperties, "upload", req.GetProtocol())
+	toolID, err := getToolID(boardProperties, "upload", req.Protocol)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +137,7 @@ func Upload(ctx context.Context, req *rpc.UploadRequest, outStream io.Writer, er
 		return nil, &arduino.CantOpenSketchError{Cause: err}
 	}
 
-	pme, pmeRelease := instances.GetPackageManagerExplorer(req.GetInstance())
+	pme, pmeRelease := commands.GetPackageManagerExplorer(req)
 	if pme == nil {
 		return nil, &arduino.InvalidInstanceError{}
 	}
@@ -651,7 +652,7 @@ func runTool(recipeID string, props *properties.Map, outStream, errStream io.Wri
 	if dryRun {
 		return nil
 	}
-	cmd, err := paths.NewProcess(toolEnv, cmdArgs...)
+	cmd, err := executils.NewProcess(toolEnv, cmdArgs...)
 	if err != nil {
 		return fmt.Errorf(tr("cannot execute upload tool: %s"), err)
 	}
@@ -752,7 +753,7 @@ func detectSketchNameFromBuildPath(buildPath *paths.Path) (string, error) {
 
 		// Sometimes we may have particular files like:
 		// Blink.ino.with_bootloader.bin
-		if !globals.MainFileValidExtensions[filepath.Ext(name)] {
+		if _, ok := globals.MainFileValidExtensions[filepath.Ext(name)]; !ok {
 			// just ignore those files
 			continue
 		}

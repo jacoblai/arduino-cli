@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/metadata
+name: google.golang.org/grpc/inter/metadata
 version: v1.59.0
 type: go
 summary: Package metadata contains functions to set and get metadata from addresses.

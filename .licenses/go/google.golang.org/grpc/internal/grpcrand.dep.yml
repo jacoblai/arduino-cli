@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/grpcrand
+name: google.golang.org/grpc/inter/grpcrand
 version: v1.59.0
 type: go
 summary: Package grpcrand implements math/rand functions in a concurrent-safe way

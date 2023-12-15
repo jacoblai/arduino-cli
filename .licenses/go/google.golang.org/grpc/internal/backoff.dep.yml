@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/backoff
+name: google.golang.org/grpc/inter/backoff
 version: v1.59.0
 type: go
 summary: Package backoff implement the backoff strategy for gRPC.

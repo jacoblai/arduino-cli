@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/status
+name: google.golang.org/grpc/inter/status
 version: v1.59.0
 type: go
 summary: Package status implements errors returned by gRPC.

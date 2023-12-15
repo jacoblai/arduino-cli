@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/binarylog
+name: google.golang.org/grpc/inter/binarylog
 version: v1.59.0
 type: go
 summary: Package binarylog implementation binary logging as defined in https://github.com/grpc/proposal/blob/master/A16-binary-logging.md.

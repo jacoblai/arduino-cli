@@ -17,24 +17,25 @@ package compile
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"sort"
 	"strings"
 
 	paths "github.com/arduino/go-paths-helper"
+	"github.com/arduino/go-properties-orderedmap"
 	"github.com/jacoblai/arduino-cli/arduino"
-	"github.com/jacoblai/arduino-cli/arduino/builder"
+	bldr "github.com/jacoblai/arduino-cli/arduino/builder"
 	"github.com/jacoblai/arduino-cli/arduino/cores"
-	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesmanager"
 	"github.com/jacoblai/arduino-cli/arduino/sketch"
 	"github.com/jacoblai/arduino-cli/arduino/utils"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/buildcache"
+	"github.com/jacoblai/arduino-cli/commands"
 	"github.com/jacoblai/arduino-cli/configuration"
 	"github.com/jacoblai/arduino-cli/i18n"
-	"github.com/jacoblai/arduino-cli/patch/buildcache"
-	"github.com/jacoblai/arduino-cli/patch/inventory"
+	"github.com/jacoblai/arduino-cli/inter/inventory"
+	"github.com/jacoblai/arduino-cli/legacy/builder"
+	"github.com/jacoblai/arduino-cli/legacy/builder/types"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/sirupsen/logrus"
 )
@@ -54,16 +55,16 @@ func Compile(ctx context.Context, req *rpc.CompileRequest, outStream, errStream 
 	// the optionality of this property, otherwise we would have no way of knowing if the property
 	// was set in the request or it's just the default boolean value.
 	if reqExportBinaries := req.GetExportBinaries(); reqExportBinaries != nil {
-		exportBinaries = reqExportBinaries.GetValue()
+		exportBinaries = reqExportBinaries.Value
 	}
 
-	pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+	pme, release := commands.GetPackageManagerExplorer(req)
 	if pme == nil {
 		return nil, &arduino.InvalidInstanceError{}
 	}
 	defer release()
 
-	lm := instances.GetLibraryManager(req.GetInstance())
+	lm := commands.GetLibraryManager(req)
 	if lm == nil {
 		return nil, &arduino.InvalidInstanceError{}
 	}
@@ -94,7 +95,7 @@ func Compile(ctx context.Context, req *rpc.CompileRequest, outStream, errStream 
 	if err != nil {
 		return nil, &arduino.InvalidFQBNError{Cause: err}
 	}
-	_, targetPlatform, targetBoard, boardBuildProperties, buildPlatform, err := pme.ResolveFQBN(fqbn)
+	targetPackage, targetPlatform, targetBoard, buildProperties, buildPlatform, err := pme.ResolveFQBN(fqbn)
 	if err != nil {
 		if targetPlatform == nil {
 			return nil, &arduino.PlatformNotFoundError{
@@ -110,22 +111,22 @@ func Compile(ctx context.Context, req *rpc.CompileRequest, outStream, errStream 
 	r.BuildPlatform = buildPlatform.ToRPCPlatformReference()
 
 	// Setup sign keys if requested
-	if req.GetKeysKeychain() != "" {
-		boardBuildProperties.Set("build.keys.keychain", req.GetKeysKeychain())
+	if req.KeysKeychain != "" {
+		buildProperties.Set("build.keys.keychain", req.GetKeysKeychain())
 	}
-	if req.GetSignKey() != "" {
-		boardBuildProperties.Set("build.keys.sign_key", req.GetSignKey())
+	if req.SignKey != "" {
+		buildProperties.Set("build.keys.sign_key", req.GetSignKey())
 	}
-	if req.GetEncryptKey() != "" {
-		boardBuildProperties.Set("build.keys.encrypt_key", req.GetEncryptKey())
+	if req.EncryptKey != "" {
+		buildProperties.Set("build.keys.encrypt_key", req.GetEncryptKey())
 	}
 	// At the current time we do not have a way of knowing if a board supports the secure boot or not,
 	// so, if the flags to override the default keys are used, we try override the corresponding platform property nonetheless.
 	// It's not possible to use the default name for the keys since there could be more tools to sign and encrypt.
 	// So it's mandatory to use all three flags to sign and encrypt the binary
-	keychainProp := boardBuildProperties.ContainsKey("build.keys.keychain")
-	signProp := boardBuildProperties.ContainsKey("build.keys.sign_key")
-	encryptProp := boardBuildProperties.ContainsKey("build.keys.encrypt_key")
+	keychainProp := buildProperties.ContainsKey("build.keys.keychain")
+	signProp := buildProperties.ContainsKey("build.keys.sign_key")
+	encryptProp := buildProperties.ContainsKey("build.keys.encrypt_key")
 	// we verify that all the properties for the secure boot keys are defined or none of them is defined.
 	if !(keychainProp == signProp && signProp == encryptProp) {
 		return nil, fmt.Errorf(tr("Firmware encryption/signing requires all the following properties to be defined: %s", "build.keys.keychain, build.keys.sign_key, build.keys.encrypt_key"))
@@ -135,7 +136,7 @@ func Compile(ctx context.Context, req *rpc.CompileRequest, outStream, errStream 
 	var buildPath *paths.Path
 	if buildPathArg := req.GetBuildPath(); buildPathArg != "" {
 		buildPath = paths.New(req.GetBuildPath()).Canonical()
-		if in, _ := buildPath.IsInsideDir(sk.FullPath); in && buildPath.IsDir() {
+		if in := buildPath.IsInsideDir(sk.FullPath); in && buildPath.IsDir() {
 			if sk.AdditionalFiles, err = removeBuildFromSketchFiles(sk.AdditionalFiles, buildPath); err != nil {
 				return nil, err
 			}
@@ -151,9 +152,57 @@ func Compile(ctx context.Context, req *rpc.CompileRequest, outStream, errStream 
 	// cache is purged after compilation to not remove entries that might be required
 	defer maybePurgeBuildCache()
 
-	var coreBuildCachePath *paths.Path
+	// Add build properites related to sketch data
+	buildProperties = bldr.SetupBuildProperties(buildProperties, buildPath, sk, req.GetOptimizeForDebug())
+
+	// Add user provided custom build properties
+	customBuildPropertiesArgs := append(req.GetBuildProperties(), "build.warn_data_percentage=75")
+	if customBuildProperties, err := properties.LoadFromSlice(req.GetBuildProperties()); err == nil {
+		buildProperties.Merge(customBuildProperties)
+	} else {
+		return nil, &arduino.InvalidArgumentError{Message: tr("Invalid build properties"), Cause: err}
+	}
+
+	requiredTools, err := pme.FindToolsRequiredForBuild(targetPlatform, buildPlatform)
+	if err != nil {
+		return nil, err
+	}
+
+	builderCtx := &types.Context{}
+	builderCtx.PackageManager = pme
+	if pme.GetProfile() != nil {
+		builderCtx.LibrariesManager = lm
+	}
+	builderCtx.TargetBoard = targetBoard
+	builderCtx.TargetPlatform = targetPlatform
+	builderCtx.TargetPackage = targetPackage
+	builderCtx.ActualPlatform = buildPlatform
+	builderCtx.RequiredTools = requiredTools
+	builderCtx.BuildProperties = buildProperties
+	builderCtx.CustomBuildProperties = customBuildPropertiesArgs
+	builderCtx.UseCachedLibrariesResolution = req.GetSkipLibrariesDiscovery()
+	builderCtx.FQBN = fqbn
+	builderCtx.Sketch = sk
+	builderCtx.BuildPath = buildPath
+	builderCtx.ProgressCB = progressCB
+
+	// FIXME: This will be redundant when arduino-builder will be part of the cli
+	builderCtx.HardwareDirs = configuration.HardwareDirectories(configuration.Settings)
+	builderCtx.BuiltInToolsDirs = configuration.BuiltinToolsDirectories(configuration.Settings)
+	builderCtx.OtherLibrariesDirs = paths.NewPathList(req.GetLibraries()...)
+	builderCtx.OtherLibrariesDirs.Add(configuration.LibrariesDir(configuration.Settings))
+	builderCtx.LibraryDirs = paths.NewPathList(req.Library...)
+
+	builderCtx.CompilationDatabase = bldr.NewCompilationDatabase(
+		builderCtx.BuildPath.Join("compile_commands.json"),
+	)
+
+	builderCtx.Verbose = req.GetVerbose()
+	builderCtx.Jobs = int(req.GetJobs())
+	builderCtx.WarningsLevel = req.GetWarnings()
+
 	if req.GetBuildCachePath() == "" {
-		coreBuildCachePath = paths.TempDir().Join("arduino", "cores")
+		builderCtx.CoreBuildCachePath = paths.TempDir().Join("arduino", "cores")
 	} else {
 		buildCachePath, err := paths.New(req.GetBuildCachePath()).Abs()
 		if err != nil {
@@ -162,101 +211,59 @@ func Compile(ctx context.Context, req *rpc.CompileRequest, outStream, errStream 
 		if err := buildCachePath.MkdirAll(); err != nil {
 			return nil, &arduino.PermissionDeniedError{Message: tr("Cannot create build cache directory"), Cause: err}
 		}
-		coreBuildCachePath = buildCachePath.Join("core")
+		builderCtx.CoreBuildCachePath = buildCachePath.Join("core")
 	}
 
-	if _, err := pme.FindToolsRequiredForBuild(targetPlatform, buildPlatform); err != nil {
-		return nil, err
-	}
+	builderCtx.BuiltInLibrariesDirs = configuration.IDEBuiltinLibrariesDir(configuration.Settings)
 
-	actualPlatform := buildPlatform
-	otherLibrariesDirs := paths.NewPathList(req.GetLibraries()...)
-	otherLibrariesDirs.Add(configuration.LibrariesDir(configuration.Settings))
-
-	var libsManager *librariesmanager.LibrariesManager
-	if pme.GetProfile() != nil {
-		libsManager = lm
-	}
-
-	sketchBuilder, err := builder.NewBuilder(
-		sk,
-		boardBuildProperties,
-		buildPath,
-		req.GetOptimizeForDebug(),
-		coreBuildCachePath,
-		int(req.GetJobs()),
-		req.GetBuildProperties(),
-		configuration.HardwareDirectories(configuration.Settings),
-		configuration.BuiltinToolsDirectories(configuration.Settings),
-		otherLibrariesDirs,
-		configuration.IDEBuiltinLibrariesDir(configuration.Settings),
-		fqbn,
-		req.GetClean(),
-		req.GetSourceOverride(),
-		req.GetCreateCompilationDatabaseOnly(),
-		targetPlatform, actualPlatform,
-		req.GetSkipLibrariesDiscovery(),
-		libsManager,
-		paths.NewPathList(req.GetLibrary()...),
-		outStream, errStream, req.GetVerbose(), req.GetWarnings(),
-		progressCB,
-	)
-	if err != nil {
-		if strings.Contains(err.Error(), "invalid build properties") {
-			return nil, &arduino.InvalidArgumentError{Message: tr("Invalid build properties"), Cause: err}
-		}
-		if errors.Is(err, builder.ErrSketchCannotBeLocatedInBuildPath) {
-			return r, &arduino.CompileFailedError{
-				Message: tr("Sketch cannot be located in build path. Please specify a different build path"),
-			}
-		}
-		return r, &arduino.CompileFailedError{Message: err.Error()}
-	}
+	builderCtx.Stdout = outStream
+	builderCtx.Stderr = errStream
+	builderCtx.Clean = req.GetClean()
+	builderCtx.OnlyUpdateCompilationDatabase = req.GetCreateCompilationDatabaseOnly()
+	builderCtx.SourceOverride = req.GetSourceOverride()
 
 	defer func() {
-		if p := sketchBuilder.GetBuildPath(); p != nil {
+		if p := builderCtx.BuildPath; p != nil {
 			r.BuildPath = p.String()
 		}
 	}()
 
 	defer func() {
-		r.Diagnostics = sketchBuilder.CompilerDiagnostics().ToRPC()
-	}()
-
-	defer func() {
-		buildProperties := sketchBuilder.GetBuildProperties()
+		buildProperties := builderCtx.BuildProperties
 		if buildProperties == nil {
 			return
 		}
 		keys := buildProperties.Keys()
 		sort.Strings(keys)
 		for _, key := range keys {
-			r.BuildProperties = append(r.GetBuildProperties(), key+"="+buildProperties.Get(key))
+			r.BuildProperties = append(r.BuildProperties, key+"="+buildProperties.Get(key))
 		}
 		if !req.GetDoNotExpandBuildProperties() {
-			r.BuildProperties, _ = utils.ExpandBuildProperties(r.GetBuildProperties())
+			r.BuildProperties, _ = utils.ExpandBuildProperties(r.BuildProperties)
 		}
 	}()
 
-	// Just get build properties and exit
 	if req.GetShowProperties() {
-		return r, nil
+		// Just get build properties and exit
+		compileErr := builder.RunParseHardware(builderCtx)
+		if compileErr != nil {
+			compileErr = &arduino.CompileFailedError{Message: compileErr.Error()}
+		}
+		return r, compileErr
 	}
 
 	if req.GetPreprocess() {
 		// Just output preprocessed source code and exit
-		preprocessedSketch, err := sketchBuilder.Preprocess()
-		if err != nil {
-			err = &arduino.CompileFailedError{Message: err.Error()}
-			return r, err
+		compileErr := builder.RunPreprocess(builderCtx)
+		if compileErr != nil {
+			compileErr = &arduino.CompileFailedError{Message: compileErr.Error()}
 		}
-		_, err = outStream.Write(preprocessedSketch)
-		return r, err
+		return r, compileErr
 	}
 
 	defer func() {
 		importedLibs := []*rpc.Library{}
-		for _, lib := range sketchBuilder.ImportedLibraries() {
+		for _, lib := range builderCtx.ImportedLibraries {
 			rpcLib, err := lib.ToRPCLibrary()
 			if err != nil {
 				msg := tr("Error getting information for library %s", lib.Name) + ": " + err.Error() + "\n"
@@ -270,7 +277,7 @@ func Compile(ctx context.Context, req *rpc.CompileRequest, outStream, errStream 
 	// if it's a regular build, go on...
 
 	if req.GetVerbose() {
-		core := sketchBuilder.GetBuildProperties().Get("build.core")
+		core := buildProperties.Get("build.core")
 		if core == "" {
 			core = "arduino"
 		}
@@ -289,10 +296,10 @@ func Compile(ctx context.Context, req *rpc.CompileRequest, outStream, errStream 
 	if !targetBoard.Properties.ContainsKey("build.board") {
 		outStream.Write([]byte(
 			tr("Warning: Board %[1]s doesn't define a %[2]s preference. Auto-set to: %[3]s",
-				targetBoard.String(), "'build.board'", sketchBuilder.GetBuildProperties().Get("build.board")) + "\n"))
+				targetBoard.String(), "'build.board'", buildProperties.Get("build.board")) + "\n"))
 	}
 
-	if err := sketchBuilder.Build(); err != nil {
+	if err := builder.RunBuilder(builderCtx); err != nil {
 		return r, &arduino.CompileFailedError{Message: err.Error()}
 	}
 
@@ -305,50 +312,52 @@ func Compile(ctx context.Context, req *rpc.CompileRequest, outStream, errStream 
 		exportBinaries = false
 	}
 	if exportBinaries {
-		err := sketchBuilder.RunRecipe("recipe.hooks.savehex.presavehex", ".pattern", false)
-		if err != nil {
+		presaveHex := builder.RecipeByPrefixSuffixRunner{Prefix: "recipe.hooks.savehex.presavehex", Suffix: ".pattern"}
+		if err := presaveHex.Run(builderCtx); err != nil {
 			return r, err
 		}
 
-		exportPath := paths.New(req.GetExportDir())
-		if exportPath == nil {
+		var exportPath *paths.Path
+		if exportDir := req.GetExportDir(); exportDir != "" {
+			exportPath = paths.New(exportDir)
+		} else {
 			// Add FQBN (without configs part) to export path
-			fqbnSuffix := strings.ReplaceAll(fqbn.StringWithoutConfig(), ":", ".")
+			fqbnSuffix := strings.Replace(fqbn.StringWithoutConfig(), ":", ".", -1)
 			exportPath = sk.FullPath.Join("build", fqbnSuffix)
+		}
+		logrus.WithField("path", exportPath).Trace("Saving sketch to export path.")
+		if err := exportPath.MkdirAll(); err != nil {
+			return r, &arduino.PermissionDeniedError{Message: tr("Error creating output dir"), Cause: err}
 		}
 
 		// Copy all "sketch.ino.*" artifacts to the export directory
-		if !buildPath.EqualsTo(exportPath) {
-			logrus.WithField("path", exportPath).Trace("Saving sketch to export path.")
-			if err := exportPath.MkdirAll(); err != nil {
-				return r, &arduino.PermissionDeniedError{Message: tr("Error creating output dir"), Cause: err}
-			}
-
-			baseName, ok := sketchBuilder.GetBuildProperties().GetOk("build.project_name") // == "sketch.ino"
-			if !ok {
-				return r, &arduino.MissingPlatformPropertyError{Property: "build.project_name"}
-			}
-			buildFiles, err := sketchBuilder.GetBuildPath().ReadDir()
-			if err != nil {
-				return r, &arduino.PermissionDeniedError{Message: tr("Error reading build directory"), Cause: err}
-			}
-			buildFiles.FilterPrefix(baseName)
-			for _, buildFile := range buildFiles {
-				exportedFile := exportPath.Join(buildFile.Base())
-				logrus.WithField("src", buildFile).WithField("dest", exportedFile).Trace("Copying artifact.")
-				if err = buildFile.CopyTo(exportedFile); err != nil {
-					return r, &arduino.PermissionDeniedError{Message: tr("Error copying output file %s", buildFile), Cause: err}
-				}
+		baseName, ok := builderCtx.BuildProperties.GetOk("build.project_name") // == "sketch.ino"
+		if !ok {
+			return r, &arduino.MissingPlatformPropertyError{Property: "build.project_name"}
+		}
+		buildFiles, err := builderCtx.BuildPath.ReadDir()
+		if err != nil {
+			return r, &arduino.PermissionDeniedError{Message: tr("Error reading build directory"), Cause: err}
+		}
+		buildFiles.FilterPrefix(baseName)
+		for _, buildFile := range buildFiles {
+			exportedFile := exportPath.Join(buildFile.Base())
+			logrus.
+				WithField("src", buildFile).
+				WithField("dest", exportedFile).
+				Trace("Copying artifact.")
+			if err = buildFile.CopyTo(exportedFile); err != nil {
+				return r, &arduino.PermissionDeniedError{Message: tr("Error copying output file %s", buildFile), Cause: err}
 			}
 		}
 
-		err = sketchBuilder.RunRecipe("recipe.hooks.savehex.postsavehex", ".pattern", false)
-		if err != nil {
+		postsaveHex := builder.RecipeByPrefixSuffixRunner{Prefix: "recipe.hooks.savehex.postsavehex", Suffix: ".pattern"}
+		if err := postsaveHex.Run(builderCtx); err != nil {
 			return r, err
 		}
 	}
 
-	r.ExecutableSectionsSize = sketchBuilder.ExecutableSectionsSize().ToRPCExecutableSectionSizeArray()
+	r.ExecutableSectionsSize = builderCtx.ExecutableSectionsSize.ToRPCExecutableSectionSizeArray()
 
 	logrus.Tracef("Compile %s for %s successful", sk.Name, fqbnIn)
 
@@ -382,7 +391,7 @@ func removeBuildFromSketchFiles(files paths.PathList, build *paths.Path) (paths.
 	var res paths.PathList
 	ignored := false
 	for _, file := range files {
-		if isInside, _ := file.IsInsideDir(build); !isInside {
+		if !file.IsInsideDir(build) {
 			res = append(res, file)
 		} else if !ignored {
 			ignored = true

@@ -23,8 +23,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/arduino/go-paths-helper"
 	"github.com/arduino/go-properties-orderedmap"
+	"github.com/jacoblai/arduino-cli/executils"
 	"github.com/jacoblai/arduino-cli/i18n"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/jacoblai/arduino-cli/version"
@@ -32,7 +32,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// To work correctly a Pluggable Discovery must respect the state machine specified on the documentation:
+// To work correctly a Pluggable Discovery must respect the state machine specifed on the documentation:
 // https://arduino.github.io/arduino-cli/latest/pluggable-discovery-specification/#state-machine
 // States a PluggableDiscovery can be in
 const (
@@ -48,7 +48,7 @@ const (
 type PluggableDiscovery struct {
 	id                   string
 	processArgs          []string
-	process              *paths.Process
+	process              *executils.Process
 	outgoingCommandsPipe io.Writer
 	incomingMessagesChan <-chan *discoveryMessage
 
@@ -85,7 +85,7 @@ func (msg discoveryMessage) String() string {
 	return s
 }
 
-// Port contains metadata about a port to connect to a board.
+// Port containts metadata about a port to connect to a board.
 type Port struct {
 	Address       string          `json:"address"`
 	AddressLabel  string          `json:"label"`
@@ -125,14 +125,14 @@ func PortFromRPCPort(o *rpc.Port) (p *Port) {
 		return nil
 	}
 	res := &Port{
-		Address:       o.GetAddress(),
-		AddressLabel:  o.GetLabel(),
-		Protocol:      o.GetProtocol(),
-		ProtocolLabel: o.GetProtocolLabel(),
-		HardwareID:    o.GetHardwareId(),
+		Address:       o.Address,
+		AddressLabel:  o.Label,
+		Protocol:      o.Protocol,
+		ProtocolLabel: o.ProtocolLabel,
+		HardwareID:    o.HardwareId,
 	}
-	if o.GetProperties() != nil {
-		res.Properties = properties.NewFromHashmap(o.GetProperties())
+	if o.Properties != nil {
+		res.Properties = properties.NewFromHashmap(o.Properties)
 	}
 	return res
 }
@@ -149,7 +149,7 @@ func (p *Port) Clone() *Port {
 	if p == nil {
 		return nil
 	}
-	res := *p
+	var res Port = *p
 	if p.Properties != nil {
 		res.Properties = p.Properties.Clone()
 	}
@@ -194,7 +194,7 @@ func (disc *PluggableDiscovery) jsonDecodeLoop(in io.Reader, outChan chan<- *dis
 
 	for {
 		var msg discoveryMessage
-		if err := decoder.Decode(&msg); errors.Is(err, io.EOF) {
+		if err := decoder.Decode(&msg); err == io.EOF {
 			// This is fine, we exit gracefully
 			disc.statusMutex.Lock()
 			disc.state = Dead
@@ -269,7 +269,7 @@ func (disc *PluggableDiscovery) sendCommand(command string) error {
 
 func (disc *PluggableDiscovery) runProcess() error {
 	logrus.Infof("starting discovery %s process", disc.id)
-	proc, err := paths.NewProcess(nil, disc.processArgs...)
+	proc, err := executils.NewProcess(nil, disc.processArgs...)
 	if err != nil {
 		return err
 	}
@@ -359,7 +359,7 @@ func (disc *PluggableDiscovery) Run() (err error) {
 	return nil
 }
 
-// Start initializes and start the discovery internal subroutines. This command must be
+// Start initializes and start the discovery inter subroutines. This command must be
 // called before List or StartSync.
 func (disc *PluggableDiscovery) Start() error {
 	if err := disc.sendCommand("START\n"); err != nil {
@@ -380,7 +380,7 @@ func (disc *PluggableDiscovery) Start() error {
 	return nil
 }
 
-// Stop stops the discovery internal subroutines and possibly free the internally
+// Stop stops the discovery inter subroutines and possibly free the internally
 // used resources. This command should be called if the client wants to pause the
 // discovery for a while.
 func (disc *PluggableDiscovery) Stop() error {

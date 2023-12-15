@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/balancer/gracefulswitch
+name: google.golang.org/grpc/inter/balancer/gracefulswitch
 version: v1.59.0
 type: go
 summary: Package gracefulswitch implements a graceful switch load balancer.

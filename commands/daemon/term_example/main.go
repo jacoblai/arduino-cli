@@ -23,14 +23,14 @@ import (
 	"log"
 	"time"
 
+	"github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 // This program exercise CLI monitor functionality.
 
 func main() {
-	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatal("error connecting to arduino-cli rpc server, you can start it by running `arduino-cli daemon`")
 	}
@@ -39,38 +39,40 @@ func main() {
 	// Create and initialize a CLI instance
 	cli := commands.NewArduinoCoreServiceClient(conn)
 
-	resp, err := cli.Create(context.Background(), &commands.CreateRequest{})
-	if err != nil {
+	var instance *commands.Instance
+	if resp, err := cli.Create(context.Background(), &commands.CreateRequest{}); err != nil {
 		log.Fatal("Create:", err)
+	} else {
+		instance = resp.Instance
 	}
-	instance := resp.GetInstance()
 
-	respStream, err := cli.Init(context.Background(), &commands.InitRequest{Instance: instance})
-	if err != nil {
+	if respStream, err := cli.Init(context.Background(), &commands.InitRequest{Instance: instance}); err != nil {
 		log.Fatal("Init:", err)
-	}
-	for {
-		resp, err := respStream.Recv()
-		if errors.Is(err, io.EOF) {
-			break
+	} else {
+		for {
+			resp, err := respStream.Recv()
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				log.Fatal("Init:", err)
+			}
+			fmt.Println(resp)
 		}
-		if err != nil {
-			log.Fatal("Init:", err)
-		}
-		fmt.Println(resp)
 	}
 
 	// List boards and take the first available port
-	respList, err := cli.BoardList(context.Background(), &commands.BoardListRequest{Instance: instance})
-	if err != nil {
+	var port *commands.Port
+	if resp, err := cli.BoardList(context.Background(), &commands.BoardListRequest{Instance: instance}); err != nil {
 		log.Fatal("BoardList:", err)
+	} else {
+		ports := resp.GetPorts()
+		if len(ports) == 0 {
+			log.Fatal("No port to connect!")
+		}
+		port = ports[0].Port
 	}
-	ports := respList.GetPorts()
-	if len(ports) == 0 {
-		log.Fatal("No port to connect!")
-	}
-	port := ports[0].GetPort()
-	fmt.Println("Detected port:", port.GetLabel(), port.GetProtocolLabel())
+	fmt.Println("Detected port:", port.Label, port.ProtocolLabel)
 
 	connectToPort(cli, instance, port)
 	time.Sleep(5 * time.Second)

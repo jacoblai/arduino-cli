@@ -21,9 +21,9 @@ import (
 	"io"
 	"os"
 
-	"github.com/ProtonMail/go-crypto/openpgp"
 	"github.com/arduino/go-paths-helper"
 	"github.com/jacoblai/arduino-cli/i18n"
+	"golang.org/x/crypto/openpgp"
 )
 
 var tr = i18n.Tr
@@ -83,6 +83,6 @@ func VerifySignature(targetPath *paths.Path, signaturePath *paths.Path, arduinoK
 		return false, nil, fmt.Errorf(tr("opening signature file: %s"), err)
 	}
 	defer signature.Close()
-	signer, err := openpgp.CheckDetachedSignature(keyRing, target, signature, nil)
+	signer, err := openpgp.CheckDetachedSignature(keyRing, target, signature)
 	return (signer != nil && err == nil), signer, err
 }

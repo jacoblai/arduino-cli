@@ -431,7 +431,7 @@ func TestBoardOrdering(t *testing.T) {
 }
 
 func TestFindToolsRequiredForBoard(t *testing.T) {
-	t.Setenv("ARDUINO_DATA_DIR", dataDir1.String())
+	os.Setenv("ARDUINO_DATA_DIR", dataDir1.String())
 	configuration.Settings = configuration.Init("")
 	pmb := NewBuilder(
 		dataDir1,
@@ -744,7 +744,6 @@ func TestFindToolsRequiredFromPlatformRelease(t *testing.T) {
 func TestFindPlatformReleaseDependencies(t *testing.T) {
 	pmb := NewBuilder(nil, nil, nil, nil, "test")
 	pmb.LoadPackageIndexFromFile(paths.New("testdata", "package_tooltest_index.json"))
-	pmb.calculateCompatibleReleases()
 	pm := pmb.Build()
 	pme, release := pm.NewExplorer()
 	defer release()
@@ -922,7 +921,7 @@ func TestVariantAndCoreSelection(t *testing.T) {
 	})
 }
 
-func TestRunScript(t *testing.T) {
+func TestRunPostInstall(t *testing.T) {
 	pmb := NewBuilder(nil, nil, nil, nil, "test")
 	pm := pmb.Build()
 	pme, release := pm.NewExplorer()
@@ -931,49 +930,29 @@ func TestRunScript(t *testing.T) {
 	// prepare dummy post install script
 	dir := paths.New(t.TempDir())
 
-	type Test struct {
-		testName   string
-		scriptName string
+	var scriptPath *paths.Path
+	var err error
+	if runtime.GOOS == "windows" {
+		scriptPath = dir.Join("post_install.bat")
+
+		err = scriptPath.WriteFile([]byte(
+			`@echo off
+			echo sent in stdout
+			echo sent in stderr 1>&2`))
+	} else {
+		scriptPath = dir.Join("post_install.sh")
+		err = scriptPath.WriteFile([]byte(
+			`#!/bin/sh
+			echo "sent in stdout"
+			echo "sent in stderr" 1>&2`))
 	}
+	require.NoError(t, err)
+	err = os.Chmod(scriptPath.String(), 0777)
+	require.NoError(t, err)
+	stdout, stderr, err := pme.RunPostInstallScript(dir)
+	require.NoError(t, err)
 
-	tests := []Test{
-		{
-			testName:   "PostInstallScript",
-			scriptName: "post_install",
-		},
-		{
-			testName:   "PreUninstallScript",
-			scriptName: "pre_uninstall",
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.testName, func(t *testing.T) {
-			var scriptPath *paths.Path
-			var err error
-			if runtime.GOOS == "windows" {
-				scriptPath = dir.Join(test.scriptName + ".bat")
-
-				err = scriptPath.WriteFile([]byte(
-					`@echo off
-					echo sent in stdout
-					echo sent in stderr 1>&2`))
-			} else {
-				scriptPath = dir.Join(test.scriptName + ".sh")
-				err = scriptPath.WriteFile([]byte(
-					`#!/bin/sh
-					echo "sent in stdout"
-					echo "sent in stderr" 1>&2`))
-			}
-			require.NoError(t, err)
-			err = os.Chmod(scriptPath.String(), 0777)
-			require.NoError(t, err)
-			stdout, stderr, err := pme.RunPreOrPostScript(dir, test.scriptName)
-			require.NoError(t, err)
-
-			// `HasPrefix` because windows seem to add a trailing space at the end
-			require.Equal(t, "sent in stdout", strings.Trim(string(stdout), "\n\r "))
-			require.Equal(t, "sent in stderr", strings.Trim(string(stderr), "\n\r "))
-		})
-	}
+	// `HasPrefix` because windows seem to add a trailing space at the end
+	require.Equal(t, "sent in stdout", strings.Trim(string(stdout), "\n\r "))
+	require.Equal(t, "sent in stderr", strings.Trim(string(stderr), "\n\r "))
 }

@@ -37,13 +37,14 @@ import (
 
 // Platform represents a platform package.
 type Platform struct {
-	Architecture      string                                       // The name of the architecture of this package.
+	Architecture      string // The name of the architecture of this package.
+	Name              string
+	Category          string
 	Releases          map[semver.NormalizedString]*PlatformRelease // The Releases of this platform, labeled by version.
 	Package           *Package                                     `json:"-"`
 	ManuallyInstalled bool                                         // true if the Platform has been installed without the CLI
-	Deprecated        bool                                         // true if the latest PlatformRelease of this Platform has been deprecated
+	Deprecated        bool                                         // true if the Platform has been deprecated
 	Indexed           bool                                         // true if the Platform has been indexed from additional-urls
-	Latest            *semver.Version                              `json:"-"`
 }
 
 // PlatformReleaseHelp represents the help URL for this Platform release
@@ -53,15 +54,12 @@ type PlatformReleaseHelp struct {
 
 // PlatformRelease represents a release of a plaform package.
 type PlatformRelease struct {
-	Name                    string
-	Category                string
 	Resource                *resources.DownloadResource
 	Version                 *semver.Version
 	BoardsManifest          []*BoardManifest
 	ToolDependencies        ToolDependencies
 	DiscoveryDependencies   DiscoveryDependencies
 	MonitorDependencies     MonitorDependencies
-	Deprecated              bool
 	Help                    PlatformReleaseHelp           `json:"-"`
 	Platform                *Platform                     `json:"-"`
 	Properties              *properties.Map               `json:"-"`
@@ -75,7 +73,6 @@ type PlatformRelease struct {
 	PluggableDiscoveryAware bool                          `json:"-"` // true if the Platform supports pluggable discovery (no compatibility layer required)
 	Monitors                map[string]*MonitorDependency `json:"-"`
 	MonitorsDevRecipes      map[string]string             `json:"-"`
-	Compatible              bool                          `json:"-"` // true if at all ToolDependencies are available for the current OS/ARCH.
 }
 
 // BoardManifest contains information about a board. These metadata are usually
@@ -230,21 +227,6 @@ func (platform *Platform) GetLatestRelease() *PlatformRelease {
 	return platform.FindReleaseWithVersion(latestVersion)
 }
 
-// GetLatestCompatibleRelease returns the latest compatible release of this platform, or nil if no
-// compatible releases are available.
-func (platform *Platform) GetLatestCompatibleRelease() *PlatformRelease {
-	var maximum *PlatformRelease
-	for _, release := range platform.Releases {
-		if !release.IsCompatible() {
-			continue
-		}
-		if maximum == nil || release.Version.GreaterThan(maximum.Version) {
-			maximum = release
-		}
-	}
-	return maximum
-}
-
 // GetAllReleases returns all the releases of this platform, or an empty
 // slice if no releases are available
 func (platform *Platform) GetAllReleases() []*PlatformRelease {
@@ -260,18 +242,6 @@ func (platform *Platform) GetAllReleases() []*PlatformRelease {
 func (platform *Platform) GetAllReleasesVersions() []*semver.Version {
 	versions := []*semver.Version{}
 	for _, release := range platform.Releases {
-		versions = append(versions, release.Version)
-	}
-	return versions
-}
-
-// GetAllCompatibleReleasesVersions returns all the version numbers in this Platform Package that contains compatible tools.
-func (platform *Platform) GetAllCompatibleReleasesVersions() []*semver.Version {
-	versions := []*semver.Version{}
-	for _, release := range platform.Releases {
-		if !release.IsCompatible() {
-			continue
-		}
 		versions = append(versions, release.Version)
 	}
 	return versions
@@ -437,7 +407,7 @@ func (release *PlatformRelease) MarshalJSON() ([]byte, error) {
 		ID:        release.Platform.String(),
 		Installed: release.Version.String(),
 		Latest:    latestStr,
-		Name:      release.Name,
+		Name:      release.Platform.Name,
 	})
 }
 
@@ -449,10 +419,4 @@ func (release *PlatformRelease) HasMetadata() bool {
 
 	installedJSONPath := release.InstallDir.Join("installed.json")
 	return installedJSONPath.Exist()
-}
-
-// IsCompatible returns true if all the tools dependencies of a PlatformRelease
-// are available in the current OS/ARCH.
-func (release *PlatformRelease) IsCompatible() bool {
-	return release.Compatible
 }

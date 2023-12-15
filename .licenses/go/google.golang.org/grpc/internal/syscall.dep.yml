@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/syscall
+name: google.golang.org/grpc/inter/syscall
 version: v1.59.0
 type: go
 summary: Package syscall provides functionalities that grpc uses to get low-level

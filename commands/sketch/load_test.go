@@ -19,6 +19,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/stretchr/testify/require"
 )
 

@@ -24,44 +24,42 @@ import (
 	"github.com/jacoblai/arduino-cli/arduino/cores"
 	"github.com/jacoblai/arduino-cli/arduino/utils"
 	"github.com/jacoblai/arduino-cli/commands"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // PlatformSearch FIXMEDOC
 func PlatformSearch(req *rpc.PlatformSearchRequest) (*rpc.PlatformSearchResponse, error) {
-	pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+	pme, release := commands.GetPackageManagerExplorer(req)
 	if pme == nil {
 		return nil, &arduino.InvalidInstanceError{}
 	}
 	defer release()
 
-	res := []*cores.Platform{}
-	if isUsb, _ := regexp.MatchString("[0-9a-f]{4}:[0-9a-f]{4}", req.GetSearchArgs()); isUsb {
-		vid, pid := req.GetSearchArgs()[:4], req.GetSearchArgs()[5:]
+	res := []*cores.PlatformRelease{}
+	if isUsb, _ := regexp.MatchString("[0-9a-f]{4}:[0-9a-f]{4}", req.SearchArgs); isUsb {
+		vid, pid := req.SearchArgs[:4], req.SearchArgs[5:]
 		res = pme.FindPlatformReleaseProvidingBoardsWithVidPid(vid, pid)
 	} else {
-		searchArgs := utils.SearchTermsFromQueryString(req.GetSearchArgs())
+		searchArgs := utils.SearchTermsFromQueryString(req.SearchArgs)
+		allVersions := req.AllVersions
 		for _, targetPackage := range pme.GetPackages() {
 			for _, platform := range targetPackage.Platforms {
-				if platform == nil {
-					continue
-				}
 				// Users can install platforms manually in the Sketchbook hardware folder,
-				// if not explictily requested we skip them.
-				if !req.GetManuallyInstalled() && platform.ManuallyInstalled {
+				// the core search command must operate only on platforms installed through
+				// the PlatformManager, thus we skip the manually installed ones.
+				if platform == nil || platform.Name == "" || platform.ManuallyInstalled {
 					continue
 				}
 
 				// Discard platforms with no releases
 				latestRelease := platform.GetLatestRelease()
-				if latestRelease == nil || latestRelease.Name == "" {
+				if latestRelease == nil {
 					continue
 				}
 
 				// Gather all strings that can be used for searching
 				toTest := platform.String() + " " +
-					latestRelease.Name + " " +
+					platform.Name + " " +
 					platform.Architecture + " " +
 					targetPackage.Name + " " +
 					targetPackage.Maintainer + " " +
@@ -75,36 +73,33 @@ func PlatformSearch(req *rpc.PlatformSearchRequest) (*rpc.PlatformSearchResponse
 					continue
 				}
 
-				res = append(res, platform)
+				if allVersions {
+					res = append(res, platform.GetAllReleases()...)
+				} else {
+					res = append(res, latestRelease)
+				}
 			}
 		}
 	}
 
-	out := []*rpc.PlatformSummary{}
-	for _, platform := range res {
-		rpcPlatformSummary := &rpc.PlatformSummary{
-			Metadata: commands.PlatformToRPCPlatformMetadata(platform),
-			Releases: map[string]*rpc.PlatformRelease{},
+	out := make([]*rpc.Platform, len(res))
+	for i, platformRelease := range res {
+		out[i] = commands.PlatformReleaseToRPC(platformRelease)
+		if platformRelease.IsInstalled() {
+			out[i].Installed = platformRelease.Version.String()
 		}
-		if installed := pme.GetInstalledPlatformRelease(platform); installed != nil {
-			rpcPlatformSummary.InstalledVersion = installed.Version.String()
-		}
-		if latestCompatible := platform.GetLatestCompatibleRelease(); latestCompatible != nil {
-			rpcPlatformSummary.LatestVersion = latestCompatible.Version.String()
-		}
-		for _, platformRelease := range platform.GetAllReleases() {
-			rpcPlatformRelease := commands.PlatformReleaseToRPC(platformRelease)
-			rpcPlatformSummary.Releases[rpcPlatformRelease.GetVersion()] = rpcPlatformRelease
-		}
-		out = append(out, rpcPlatformSummary)
 	}
-
 	// Sort result alphabetically and put deprecated platforms at the bottom
-	sort.Slice(out, func(i, j int) bool {
-		return strings.ToLower(out[i].GetMetadata().GetId()) < strings.ToLower(out[j].GetMetadata().GetId())
-	})
-	sort.SliceStable(out, func(i, j int) bool {
-		return !out[i].GetMetadata().GetDeprecated() && out[j].GetMetadata().GetDeprecated()
-	})
+	sort.Slice(
+		out, func(i, j int) bool {
+			return strings.ToLower(out[i].Name) < strings.ToLower(out[j].Name)
+		})
+	sort.SliceStable(
+		out, func(i, j int) bool {
+			if !out[i].Deprecated && out[j].Deprecated {
+				return true
+			}
+			return false
+		})
 	return &rpc.PlatformSearchResponse{SearchOutput: out}, nil
 }

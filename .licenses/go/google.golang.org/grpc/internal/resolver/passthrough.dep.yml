@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/resolver/passthrough
+name: google.golang.org/grpc/inter/resolver/passthrough
 version: v1.59.0
 type: go
 summary: Package passthrough implements a pass-through resolver.

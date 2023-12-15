@@ -1,5 +1,5 @@
 ---
-name: github.com/cloudflare/circl/internal/sha3
+name: github.com/cloudflare/circl/inter/sha3
 version: v1.3.3
 type: go
 summary: Package sha3 implements the SHA-3 fixed-output-length hash functions and

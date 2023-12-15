@@ -25,6 +25,7 @@ import (
 	"github.com/jacoblai/arduino-cli/arduino"
 	"github.com/jacoblai/arduino-cli/arduino/cores"
 	"github.com/jacoblai/arduino-cli/arduino/cores/packageindex"
+	"github.com/jacoblai/arduino-cli/executils"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/pkg/errors"
 )
@@ -37,7 +38,6 @@ func (pme *Explorer) DownloadAndInstallPlatformUpgrades(
 	downloadCB rpc.DownloadProgressCB,
 	taskCB rpc.TaskProgressCB,
 	skipPostInstall bool,
-	skipPreUninstall bool,
 ) (*cores.PlatformRelease, error) {
 	if platformRef.PlatformVersion != nil {
 		return nil, &arduino.InvalidArgumentError{Message: tr("Upgrade doesn't accept parameters with version")}
@@ -52,7 +52,7 @@ func (pme *Explorer) DownloadAndInstallPlatformUpgrades(
 	if installed == nil {
 		return nil, &arduino.PlatformNotFoundError{Platform: platformRef.String()}
 	}
-	latest := platform.GetLatestCompatibleRelease()
+	latest := platform.GetLatestRelease()
 	if !latest.Version.GreaterThan(installed.Version) {
 		return installed, &arduino.PlatformAlreadyAtTheLatestVersionError{Platform: platformRef.String()}
 	}
@@ -62,7 +62,7 @@ func (pme *Explorer) DownloadAndInstallPlatformUpgrades(
 	if err != nil {
 		return nil, &arduino.PlatformNotFoundError{Platform: platformRef.String()}
 	}
-	if err := pme.DownloadAndInstallPlatformAndTools(platformRelease, tools, downloadCB, taskCB, skipPostInstall, skipPreUninstall); err != nil {
+	if err := pme.DownloadAndInstallPlatformAndTools(platformRelease, tools, downloadCB, taskCB, skipPostInstall); err != nil {
 		return nil, err
 	}
 
@@ -75,7 +75,7 @@ func (pme *Explorer) DownloadAndInstallPlatformUpgrades(
 func (pme *Explorer) DownloadAndInstallPlatformAndTools(
 	platformRelease *cores.PlatformRelease, requiredTools []*cores.ToolRelease,
 	downloadCB rpc.DownloadProgressCB, taskCB rpc.TaskProgressCB,
-	skipPostInstall bool, skipPreUninstall bool) error {
+	skipPostInstall bool) error {
 	log := pme.log.WithField("platform", platformRelease)
 
 	// Prerequisite checks before install
@@ -142,7 +142,7 @@ func (pme *Explorer) DownloadAndInstallPlatformAndTools(
 
 	// If upgrading remove previous release
 	if installed != nil {
-		uninstallErr := pme.UninstallPlatform(installed, taskCB, skipPreUninstall)
+		uninstallErr := pme.UninstallPlatform(installed, taskCB)
 
 		// In case of error try to rollback
 		if uninstallErr != nil {
@@ -150,7 +150,7 @@ func (pme *Explorer) DownloadAndInstallPlatformAndTools(
 			taskCB(&rpc.TaskProgress{Message: tr("Error upgrading platform: %s", uninstallErr)})
 
 			// Rollback
-			if err := pme.UninstallPlatform(platformRelease, taskCB, skipPreUninstall); err != nil {
+			if err := pme.UninstallPlatform(platformRelease, taskCB); err != nil {
 				log.WithError(err).Error("Error rolling-back changes.")
 				taskCB(&rpc.TaskProgress{Message: tr("Error rolling-back changes: %s", err)})
 			}
@@ -162,7 +162,7 @@ func (pme *Explorer) DownloadAndInstallPlatformAndTools(
 		for _, tool := range installedTools {
 			taskCB(&rpc.TaskProgress{Name: tr("Uninstalling %s, tool is no more required", tool)})
 			if !pme.IsToolRequired(tool) {
-				pme.UninstallTool(tool, taskCB, skipPreUninstall)
+				pme.UninstallTool(tool, taskCB)
 			}
 		}
 
@@ -175,7 +175,7 @@ func (pme *Explorer) DownloadAndInstallPlatformAndTools(
 		if !platformRelease.IsInstalled() {
 			return errors.New(tr("platform not installed"))
 		}
-		stdout, stderr, err := pme.RunPreOrPostScript(platformRelease.InstallDir, "post_install")
+		stdout, stderr, err := pme.RunPostInstallScript(platformRelease.InstallDir)
 		skipEmptyMessageTaskProgressCB(taskCB)(&rpc.TaskProgress{Message: string(stdout), Completed: true})
 		skipEmptyMessageTaskProgressCB(taskCB)(&rpc.TaskProgress{Message: string(stderr), Completed: true})
 		if err != nil {
@@ -229,16 +229,16 @@ func (pme *Explorer) cacheInstalledJSON(platformRelease *cores.PlatformRelease) 
 	return nil
 }
 
-// RunPreOrPostScript runs either the post_install.sh (or post_install.bat) or the pre_uninstall.sh (or pre_uninstall.bat)
-// script for the specified platformRelease or toolRelease.
-func (pme *Explorer) RunPreOrPostScript(installDir *paths.Path, prefix string) ([]byte, []byte, error) {
-	scriptFilename := prefix + ".sh"
+// RunPostInstallScript runs the post_install.sh (or post_install.bat) script for the
+// specified platformRelease or toolRelease.
+func (pme *Explorer) RunPostInstallScript(installDir *paths.Path) ([]byte, []byte, error) {
+	postInstallFilename := "post_install.sh"
 	if runtime.GOOS == "windows" {
-		scriptFilename = prefix + ".bat"
+		postInstallFilename = "post_install.bat"
 	}
-	script := installDir.Join(scriptFilename)
-	if script.Exist() && script.IsNotDir() {
-		cmd, err := paths.NewProcessFromPath(pme.GetEnvVarsForSpawnedProcess(), script)
+	postInstall := installDir.Join(postInstallFilename)
+	if postInstall.Exist() && postInstall.IsNotDir() {
+		cmd, err := executils.NewProcessFromPath(pme.GetEnvVarsForSpawnedProcess(), postInstall)
 		if err != nil {
 			return []byte{}, []byte{}, err
 		}
@@ -265,12 +265,12 @@ func (pme *Explorer) IsManagedPlatformRelease(platformRelease *cores.PlatformRel
 	if packagesDir.FollowSymLink() != nil {
 		return false
 	}
-	managed, _ := installDir.IsInsideDir(packagesDir)
+	managed := installDir.IsInsideDir(packagesDir)
 	return managed
 }
 
 // UninstallPlatform remove a PlatformRelease.
-func (pme *Explorer) UninstallPlatform(platformRelease *cores.PlatformRelease, taskCB rpc.TaskProgressCB, skipPreUninstall bool) error {
+func (pme *Explorer) UninstallPlatform(platformRelease *cores.PlatformRelease, taskCB rpc.TaskProgressCB) error {
 	log := pme.log.WithField("platform", platformRelease)
 
 	log.Info("Uninstalling platform")
@@ -287,20 +287,6 @@ func (pme *Explorer) UninstallPlatform(platformRelease *cores.PlatformRelease, t
 		err := fmt.Errorf(tr("%s is not managed by package manager"), platformRelease)
 		log.WithError(err).Error("Error uninstalling")
 		return &arduino.FailedUninstallError{Message: err.Error()}
-	}
-
-	if !skipPreUninstall {
-		log.Info("Running pre_uninstall script")
-		taskCB(&rpc.TaskProgress{Message: tr("Running pre_uninstall script.")})
-		stdout, stderr, err := pme.RunPreOrPostScript(platformRelease.InstallDir, "pre_uninstall")
-		skipEmptyMessageTaskProgressCB(taskCB)(&rpc.TaskProgress{Message: string(stdout), Completed: true})
-		skipEmptyMessageTaskProgressCB(taskCB)(&rpc.TaskProgress{Message: string(stderr), Completed: true})
-		if err != nil {
-			taskCB(&rpc.TaskProgress{Message: tr("WARNING cannot run pre_uninstall script: %s", err), Completed: true})
-		}
-	} else {
-		log.Info("Skipping pre_uninstall script.")
-		taskCB(&rpc.TaskProgress{Message: tr("Skipping pre_uninstall script.")})
 	}
 
 	if err := platformRelease.InstallDir.RemoveAll(); err != nil {
@@ -353,7 +339,7 @@ func (pme *Explorer) InstallTool(toolRelease *cores.ToolRelease, taskCB rpc.Task
 	if !skipPostInstall {
 		log.Info("Running tool post_install script")
 		taskCB(&rpc.TaskProgress{Message: tr("Configuring tool.")})
-		stdout, stderr, err := pme.RunPreOrPostScript(toolRelease.InstallDir, "post_install")
+		stdout, stderr, err := pme.RunPostInstallScript(toolRelease.InstallDir)
 		skipEmptyMessageTaskProgressCB(taskCB)(&rpc.TaskProgress{Message: string(stdout)})
 		skipEmptyMessageTaskProgressCB(taskCB)(&rpc.TaskProgress{Message: string(stderr)})
 		if err != nil {
@@ -382,12 +368,12 @@ func (pme *Explorer) IsManagedToolRelease(toolRelease *cores.ToolRelease) bool {
 	if packagesDir.FollowSymLink() != nil {
 		return false
 	}
-	managed, _ := installDir.IsInsideDir(packagesDir)
+	managed := installDir.IsInsideDir(packagesDir)
 	return managed
 }
 
 // UninstallTool remove a ToolRelease.
-func (pme *Explorer) UninstallTool(toolRelease *cores.ToolRelease, taskCB rpc.TaskProgressCB, skipPreUninstall bool) error {
+func (pme *Explorer) UninstallTool(toolRelease *cores.ToolRelease, taskCB rpc.TaskProgressCB) error {
 	log := pme.log.WithField("Tool", toolRelease)
 	log.Info("Uninstalling tool")
 
@@ -400,20 +386,6 @@ func (pme *Explorer) UninstallTool(toolRelease *cores.ToolRelease, taskCB rpc.Ta
 		err := &arduino.FailedUninstallError{Message: tr("tool %s is not managed by package manager", toolRelease)}
 		log.WithError(err).Error("Error uninstalling")
 		return err
-	}
-
-	if !skipPreUninstall {
-		log.Info("Running pre_uninstall script")
-		taskCB(&rpc.TaskProgress{Message: tr("Running pre_uninstall script.")})
-		stdout, stderr, err := pme.RunPreOrPostScript(toolRelease.InstallDir, "pre_uninstall")
-		skipEmptyMessageTaskProgressCB(taskCB)(&rpc.TaskProgress{Message: string(stdout), Completed: true})
-		skipEmptyMessageTaskProgressCB(taskCB)(&rpc.TaskProgress{Message: string(stderr), Completed: true})
-		if err != nil {
-			taskCB(&rpc.TaskProgress{Message: tr("WARNING cannot run pre_uninstall script: %s", err), Completed: true})
-		}
-	} else {
-		log.Info("Skipping pre_uninstall script.")
-		taskCB(&rpc.TaskProgress{Message: tr("Skipping pre_uninstall script.")})
 	}
 
 	if err := toolRelease.InstallDir.RemoveAll(); err != nil {
@@ -447,7 +419,7 @@ func (pme *Explorer) IsToolRequired(toolRelease *cores.ToolRelease) bool {
 
 func skipEmptyMessageTaskProgressCB(taskCB rpc.TaskProgressCB) rpc.TaskProgressCB {
 	return func(msg *rpc.TaskProgress) {
-		if msg != nil && len(msg.GetMessage()) == 0 {
+		if msg != nil && len(msg.Message) == 0 {
 			return
 		}
 		taskCB(msg)

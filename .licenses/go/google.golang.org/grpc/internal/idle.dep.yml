@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/idle
+name: google.golang.org/grpc/inter/idle
 version: v1.59.0
 type: go
 summary: Package idle contains a component for managing idleness (entering and exiting)

@@ -19,14 +19,13 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"slices"
-	"strings"
 
 	paths "github.com/arduino/go-paths-helper"
 	"github.com/jacoblai/arduino-cli/arduino/cores"
 	"github.com/jacoblai/arduino-cli/arduino/libraries"
 	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesindex"
 	"github.com/jacoblai/arduino-cli/i18n"
+	"github.com/pmylund/sortutil"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -61,12 +60,7 @@ func (lm LibrariesManager) Names() []string {
 		res[i] = n
 		i++
 	}
-	slices.SortFunc(res, func(a, b string) int {
-		if strings.ToLower(a) < strings.ToLower(b) {
-			return -1
-		}
-		return 1
-	})
+	sortutil.CiAsc(res)
 	return res
 }
 
@@ -223,20 +217,6 @@ func (lm *LibrariesManager) FindByReference(libRef *librariesindex.Reference, in
 		return nil
 	}
 	return alternatives.FilterByVersionAndInstallLocation(libRef.Version, installLocation)
-}
-
-// FindAllInstalled returns all the installed libraries
-func (lm *LibrariesManager) FindAllInstalled() libraries.List {
-	var res libraries.List
-	for _, libAlternatives := range lm.Libraries {
-		for _, libRelease := range libAlternatives {
-			if libRelease.InstallDir == nil {
-				continue
-			}
-			res.Add(libRelease)
-		}
-	}
-	return res
 }
 
 func (lm *LibrariesManager) clearLibraries() {

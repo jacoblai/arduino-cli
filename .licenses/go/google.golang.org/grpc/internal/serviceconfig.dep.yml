@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/serviceconfig
+name: google.golang.org/grpc/inter/serviceconfig
 version: v1.59.0
 type: go
 summary: Package serviceconfig contains utility functions to parse service config.

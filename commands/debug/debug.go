@@ -27,9 +27,10 @@ import (
 	"github.com/arduino/go-paths-helper"
 	"github.com/jacoblai/arduino-cli/arduino"
 	"github.com/jacoblai/arduino-cli/arduino/cores/packagemanager"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/commands"
+	"github.com/jacoblai/arduino-cli/executils"
 	"github.com/jacoblai/arduino-cli/i18n"
-	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	dbg "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/debug/v1"
 	"github.com/sirupsen/logrus"
 )
 
@@ -41,10 +42,10 @@ var tr = i18n.Tr
 // grpc Out <- tool stdOut
 // grpc Out <- tool stdErr
 // It also implements tool process lifecycle management
-func Debug(ctx context.Context, req *rpc.GetDebugConfigRequest, inStream io.Reader, out io.Writer, interrupt <-chan os.Signal) (*rpc.DebugResponse, error) {
+func Debug(ctx context.Context, req *dbg.DebugConfigRequest, inStream io.Reader, out io.Writer, interrupt <-chan os.Signal) (*dbg.DebugResponse, error) {
 
 	// Get debugging command line to run debugger
-	pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+	pme, release := commands.GetPackageManagerExplorer(req)
 	if pme == nil {
 		return nil, &arduino.InvalidInstanceError{}
 	}
@@ -66,7 +67,7 @@ func Debug(ctx context.Context, req *rpc.GetDebugConfigRequest, inStream io.Read
 	}
 	entry.Debug("Executing debugger")
 
-	cmd, err := paths.NewProcess(pme.GetEnvVarsForSpawnedProcess(), commandLine...)
+	cmd, err := executils.NewProcess(pme.GetEnvVarsForSpawnedProcess(), commandLine...)
 	if err != nil {
 		return nil, &arduino.FailedDebugError{Message: tr("Cannot execute debug tool"), Cause: err}
 	}
@@ -74,7 +75,7 @@ func Debug(ctx context.Context, req *rpc.GetDebugConfigRequest, inStream io.Read
 	// Get stdIn pipe from tool
 	in, err := cmd.StdinPipe()
 	if err != nil {
-		return &rpc.DebugResponse{Error: err.Error()}, nil
+		return &dbg.DebugResponse{Error: err.Error()}, nil
 	}
 	defer in.Close()
 
@@ -84,17 +85,17 @@ func Debug(ctx context.Context, req *rpc.GetDebugConfigRequest, inStream io.Read
 
 	// Start the debug command
 	if err := cmd.Start(); err != nil {
-		return &rpc.DebugResponse{Error: err.Error()}, nil
+		return &dbg.DebugResponse{Error: err.Error()}, nil
 	}
 
 	if interrupt != nil {
 		go func() {
 			for {
-				sig, ok := <-interrupt
-				if !ok {
+				if sig, ok := <-interrupt; !ok {
 					break
+				} else {
+					cmd.Signal(sig)
 				}
-				cmd.Signal(sig)
 			}
 		}()
 	}
@@ -110,14 +111,14 @@ func Debug(ctx context.Context, req *rpc.GetDebugConfigRequest, inStream io.Read
 
 	// Wait for process to finish
 	if err := cmd.Wait(); err != nil {
-		return &rpc.DebugResponse{Error: err.Error()}, nil
+		return &dbg.DebugResponse{Error: err.Error()}, nil
 	}
-	return &rpc.DebugResponse{}, nil
+	return &dbg.DebugResponse{}, nil
 }
 
 // getCommandLine compose a debug command represented by a core recipe
-func getCommandLine(req *rpc.GetDebugConfigRequest, pme *packagemanager.Explorer) ([]string, error) {
-	debugInfo, err := getDebugProperties(req, pme, false)
+func getCommandLine(req *dbg.DebugConfigRequest, pme *packagemanager.Explorer) ([]string, error) {
+	debugInfo, err := getDebugProperties(req, pme)
 	if err != nil {
 		return nil, err
 	}
@@ -129,11 +130,11 @@ func getCommandLine(req *rpc.GetDebugConfigRequest, pme *packagemanager.Explorer
 	var gdbPath *paths.Path
 	switch debugInfo.GetToolchain() {
 	case "gcc":
-		gdbexecutable := debugInfo.GetToolchainPrefix() + "-gdb"
+		gdbexecutable := debugInfo.ToolchainPrefix + "gdb"
 		if runtime.GOOS == "windows" {
 			gdbexecutable += ".exe"
 		}
-		gdbPath = paths.New(debugInfo.GetToolchainPath()).Join(gdbexecutable)
+		gdbPath = paths.New(debugInfo.ToolchainPath).Join(gdbexecutable)
 	default:
 		return nil, &arduino.FailedDebugError{Message: tr("Toolchain '%s' is not supported", debugInfo.GetToolchain())}
 	}
@@ -157,18 +158,13 @@ func getCommandLine(req *rpc.GetDebugConfigRequest, pme *packagemanager.Explorer
 	// Extract path to GDB Server
 	switch debugInfo.GetServer() {
 	case "openocd":
-		var openocdConf rpc.DebugOpenOCDServerConfiguration
-		if err := debugInfo.GetServerConfiguration().UnmarshalTo(&openocdConf); err != nil {
-			return nil, err
-		}
+		serverCmd := fmt.Sprintf(`target extended-remote | "%s"`, debugInfo.ServerPath)
 
-		serverCmd := fmt.Sprintf(`target extended-remote | "%s"`, debugInfo.GetServerPath())
-
-		if cfg := openocdConf.GetScriptsDir(); cfg != "" {
+		if cfg := debugInfo.ServerConfiguration["scripts_dir"]; cfg != "" {
 			serverCmd += fmt.Sprintf(` -s "%s"`, cfg)
 		}
 
-		for _, script := range openocdConf.GetScripts() {
+		if script := debugInfo.ServerConfiguration["script"]; script != "" {
 			serverCmd += fmt.Sprintf(` --file "%s"`, script)
 		}
 
@@ -183,7 +179,7 @@ func getCommandLine(req *rpc.GetDebugConfigRequest, pme *packagemanager.Explorer
 	}
 
 	// Add executable
-	add(debugInfo.GetExecutable())
+	add(debugInfo.Executable)
 
 	// Transform every path to forward slashes (on Windows some tools further
 	// escapes the command line so the backslash "\" gets in the way).

@@ -18,9 +18,8 @@ package cores
 import (
 	"errors"
 	"fmt"
-	"slices"
-	"strings"
 
+	"github.com/pmylund/sortutil"
 	semver "go.bug.st/relaxed-semver"
 )
 
@@ -74,14 +73,7 @@ func (packages Packages) Names() []string {
 		res[i] = n
 		i++
 	}
-
-	slices.SortFunc(res, func(a, b string) int {
-		if strings.ToLower(a) < strings.ToLower(b) {
-			return -1
-		}
-		return 1
-	})
-
+	sortutil.CiAsc(res)
 	return res
 }
 

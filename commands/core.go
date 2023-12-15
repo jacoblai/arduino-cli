@@ -20,23 +20,10 @@ import (
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
-// PlatformToRPCPlatformMetadata converts our internal structure to the RPC structure.
-func PlatformToRPCPlatformMetadata(platform *cores.Platform) *rpc.PlatformMetadata {
-	return &rpc.PlatformMetadata{
-		Id:                platform.String(),
-		Maintainer:        platform.Package.Maintainer,
-		Website:           platform.Package.WebsiteURL,
-		Email:             platform.Package.Email,
-		ManuallyInstalled: platform.ManuallyInstalled,
-		Deprecated:        platform.Deprecated,
-		Indexed:           platform.Indexed,
-	}
-}
-
-// PlatformReleaseToRPC converts our internal structure to the RPC structure.
+// PlatformReleaseToRPC converts our inter structure to the RPC structure.
 // Note: this function does not touch the "Installed" field of rpc.Platform as it's not always clear that the
 // platformRelease we're currently converting is actually installed.
-func PlatformReleaseToRPC(platformRelease *cores.PlatformRelease) *rpc.PlatformRelease {
+func PlatformReleaseToRPC(platformRelease *cores.PlatformRelease) *rpc.Platform {
 	// If the boards are not installed yet, the `platformRelease.Boards` will be a zero length slice.
 	// In such case, we have to use the `platformRelease.BoardsManifest` instead.
 	// So that we can retrieve the name of the boards at least.
@@ -63,17 +50,21 @@ func PlatformReleaseToRPC(platformRelease *cores.PlatformRelease) *rpc.PlatformR
 		}
 	}
 
-	// This field make sense only if the platformRelease is installed otherwise is an "undefined behaviour"
-	missingMetadata := platformRelease.IsInstalled() && !platformRelease.HasMetadata()
-	return &rpc.PlatformRelease{
-		Name:            platformRelease.Name,
-		Help:            &rpc.HelpResources{Online: platformRelease.Platform.Package.Help.Online},
-		Boards:          boards,
-		Version:         platformRelease.Version.String(),
-		Installed:       platformRelease.IsInstalled(),
-		MissingMetadata: missingMetadata,
-		Type:            []string{platformRelease.Category},
-		Deprecated:      platformRelease.Deprecated,
-		Compatible:      platformRelease.IsCompatible(),
+	result := &rpc.Platform{
+		Id:                platformRelease.Platform.String(),
+		Name:              platformRelease.Platform.Name,
+		Maintainer:        platformRelease.Platform.Package.Maintainer,
+		Website:           platformRelease.Platform.Package.WebsiteURL,
+		Email:             platformRelease.Platform.Package.Email,
+		Help:              &rpc.HelpResources{Online: platformRelease.Platform.Package.Help.Online},
+		Boards:            boards,
+		Latest:            platformRelease.Version.String(),
+		ManuallyInstalled: platformRelease.Platform.ManuallyInstalled,
+		Deprecated:        platformRelease.Platform.Deprecated,
+		Type:              []string{platformRelease.Platform.Category},
+		Indexed:           platformRelease.Platform.Indexed,
+		MissingMetadata:   !platformRelease.HasMetadata(),
 	}
+
+	return result
 }

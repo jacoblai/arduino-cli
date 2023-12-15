@@ -27,8 +27,8 @@ import (
 // preprocessor. This adds double quotes around it and escapes any
 // double quotes and backslashes in the string.
 func QuoteString(str string) string {
-	str = strings.ReplaceAll(str, "\\", "\\\\")
-	str = strings.ReplaceAll(str, "\"", "\\\"")
+	str = strings.Replace(str, "\\", "\\\\", -1)
+	str = strings.Replace(str, "\"", "\\\"", -1)
 	return "\"" + str + "\""
 }
 
@@ -105,9 +105,4 @@ func ParseString(line string) (string, string, bool) {
 
 		i += width
 	}
-}
-
-// WrapWithHyphenI fixdoc
-func WrapWithHyphenI(value string) string {
-	return "\"-I" + value + "\""
 }

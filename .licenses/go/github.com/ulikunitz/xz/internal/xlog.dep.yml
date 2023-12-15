@@ -1,5 +1,5 @@
 ---
-name: github.com/ulikunitz/xz/internal/xlog
+name: github.com/ulikunitz/xz/inter/xlog
 version: v0.5.11
 type: go
 summary: Package xlog provides a simple logging package that allows to disable certain

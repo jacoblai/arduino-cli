@@ -1,8 +1,8 @@
 ---
-name: github.com/go-git/go-git/v5/internal/url
+name: github.com/go-git/go-git/v5/inter/url
 version: v5.4.2
 type: go
-summary: 
+summary:
 homepage: https://pkg.go.dev/github.com/go-git/go-git/v5/internal/url
 license: apache-2.0
 licenses:

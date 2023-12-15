@@ -16,49 +16,45 @@
 package globals
 
 var (
+	empty struct{}
+
 	// MainFileValidExtension is the extension that must be used for files in new sketches
-	MainFileValidExtension = ".ino"
+	MainFileValidExtension string = ".ino"
 
 	// MainFileValidExtensions lists valid extensions for a sketch file
-	MainFileValidExtensions = map[string]bool{
-		MainFileValidExtension: true,
+	MainFileValidExtensions = map[string]struct{}{
+		MainFileValidExtension: empty,
 		// .pde extension is deprecated and must not be used for new sketches
-		".pde": true,
+		".pde": empty,
 	}
 
 	// AdditionalFileValidExtensions lists any file extension the builder considers as valid
-	AdditionalFileValidExtensions = map[string]bool{
-		".h":    true,
-		".c":    true,
-		".hpp":  true,
-		".hh":   true,
-		".cpp":  true,
-		".cxx":  true,
-		".cc":   true,
-		".S":    true,
-		".adoc": true,
-		".md":   true,
-		".json": true,
-		".tpp":  true,
-		".ipp":  true,
+	AdditionalFileValidExtensions = map[string]struct{}{
+		".h":    empty,
+		".c":    empty,
+		".hpp":  empty,
+		".hh":   empty,
+		".cpp":  empty,
+		".S":    empty,
+		".adoc": empty,
+		".md":   empty,
+		".json": empty,
+		".tpp":  empty,
+		".ipp":  empty,
 	}
 
-	// SourceFilesValidExtensions lists valid extensions for source files (no headers).
-	// If a platform do not provide a compile recipe for a specific file extension, this
-	// map provides the equivalent extension to use as a fallback.
-	SourceFilesValidExtensions = map[string]string{
-		".c":   "",
-		".cpp": "",
-		".cxx": ".cpp",
-		".cc":  ".cpp",
-		".S":   "",
+	// SourceFilesValidExtensions lists valid extensions for source files (no headers)
+	SourceFilesValidExtensions = map[string]struct{}{
+		".c":   empty,
+		".cpp": empty,
+		".S":   empty,
 	}
 
 	// HeaderFilesValidExtensions lists valid extensions for header files
-	HeaderFilesValidExtensions = map[string]bool{
-		".h":   true,
-		".hpp": true,
-		".hh":  true,
+	HeaderFilesValidExtensions = map[string]struct{}{
+		".h":   empty,
+		".hpp": empty,
+		".hh":  empty,
 	}
 
 	// DefaultIndexURL is the default index url

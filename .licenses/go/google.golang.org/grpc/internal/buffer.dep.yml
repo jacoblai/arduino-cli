@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/buffer
+name: google.golang.org/grpc/inter/buffer
 version: v1.59.0
 type: go
 summary: Package buffer provides an implementation of an unbounded buffer.

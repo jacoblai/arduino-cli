@@ -19,7 +19,7 @@ import (
 	"os"
 
 	"github.com/jacoblai/arduino-cli/configuration"
-	"github.com/jacoblai/arduino-cli/patch/cli"
+	"github.com/jacoblai/arduino-cli/inter/cli"
 	"github.com/spf13/cobra/doc"
 )
 

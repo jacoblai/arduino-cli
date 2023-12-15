@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/balancerload
+name: google.golang.org/grpc/inter/balancerload
 version: v1.59.0
 type: go
 summary: Package balancerload defines APIs to parse server loads in trailers.

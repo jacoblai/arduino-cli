@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/arduino/go-paths-helper"
+	"github.com/jacoblai/arduino-cli/executils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -32,7 +33,7 @@ func TestDummyMonitor(t *testing.T) {
 	// Build `dummy-monitor` helper inside testdata/dummy-monitor
 	testDataDir, err := paths.New("testdata").Abs()
 	require.NoError(t, err)
-	builder, err := paths.NewProcess(nil, "go", "install", "github.com/arduino/pluggable-monitor-protocol-handler/dummy-monitor@main")
+	builder, err := executils.NewProcess(nil, "go", "install", "github.com/arduino/pluggable-monitor-protocol-handler/dummy-monitor@main")
 	fmt.Println(testDataDir.String())
 	env := os.Environ()
 	env = append(env, "GOBIN="+testDataDir.String())

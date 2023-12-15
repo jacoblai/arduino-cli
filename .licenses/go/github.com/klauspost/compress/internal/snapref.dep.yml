@@ -1,5 +1,5 @@
 ---
-name: github.com/klauspost/compress/internal/snapref
+name: github.com/klauspost/compress/inter/snapref
 version: v1.17.0
 type: go
 summary: Package snapref implements the Snappy compression format.

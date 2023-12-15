@@ -21,6 +21,7 @@ import (
 	"net/url"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	paths "github.com/arduino/go-paths-helper"
 	"github.com/jacoblai/arduino-cli/arduino"
@@ -34,16 +35,100 @@ import (
 	"github.com/jacoblai/arduino-cli/arduino/resources"
 	"github.com/jacoblai/arduino-cli/arduino/sketch"
 	"github.com/jacoblai/arduino-cli/arduino/utils"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
 	"github.com/jacoblai/arduino-cli/configuration"
 	"github.com/jacoblai/arduino-cli/i18n"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	"github.com/jacoblai/arduino-cli/version"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 var tr = i18n.Tr
+
+// CoreInstance is an instance of the Arduino Core Services. The user can
+// instantiate as many as needed by providing a different configuration
+// for each one.
+type CoreInstance struct {
+	pm *packagemanager.PackageManager
+	lm *librariesmanager.LibrariesManager
+}
+
+// coreInstancesContainer has methods to add an remove instances atomically.
+type coreInstancesContainer struct {
+	instances      map[int32]*CoreInstance
+	instancesCount int32
+	instancesMux   sync.Mutex
+}
+
+// instances contains all the running Arduino Core Services instances
+var instances = &coreInstancesContainer{
+	instances:      map[int32]*CoreInstance{},
+	instancesCount: 1,
+}
+
+// GetInstance returns a CoreInstance for the given ID, or nil if ID
+// doesn't exist
+func (c *coreInstancesContainer) GetInstance(id int32) *CoreInstance {
+	c.instancesMux.Lock()
+	defer c.instancesMux.Unlock()
+	return c.instances[id]
+}
+
+// AddAndAssignID saves the CoreInstance and assigns a unique ID to
+// retrieve it later
+func (c *coreInstancesContainer) AddAndAssignID(i *CoreInstance) int32 {
+	c.instancesMux.Lock()
+	defer c.instancesMux.Unlock()
+	id := c.instancesCount
+	c.instances[id] = i
+	c.instancesCount++
+	return id
+}
+
+// RemoveID removes the CoreInstance referenced by id. Returns true
+// if the operation is successful, or false if the CoreInstance does
+// not exist
+func (c *coreInstancesContainer) RemoveID(id int32) bool {
+	c.instancesMux.Lock()
+	defer c.instancesMux.Unlock()
+	if _, ok := c.instances[id]; !ok {
+		return false
+	}
+	delete(c.instances, id)
+	return true
+}
+
+// GetPackageManager returns a PackageManager. If the package manager is not found
+// (because the instance is invalid or has been destroyed), nil is returned.
+// Deprecated: use GetPackageManagerExplorer instead.
+func GetPackageManager(instance rpc.InstanceCommand) *packagemanager.PackageManager {
+	i := instances.GetInstance(instance.GetInstance().GetId())
+	if i == nil {
+		return nil
+	}
+	return i.pm
+}
+
+// GetPackageManagerExplorer returns a new package manager Explorer. The
+// explorer holds a read lock on the underlying PackageManager and it should
+// be released by calling the returned "release" function.
+func GetPackageManagerExplorer(req rpc.InstanceCommand) (explorer *packagemanager.Explorer, release func()) {
+	pm := GetPackageManager(req)
+	if pm == nil {
+		return nil, nil
+	}
+	return pm.NewExplorer()
+}
+
+// GetLibraryManager returns the library manager for the given instance.
+func GetLibraryManager(req rpc.InstanceCommand) *librariesmanager.LibrariesManager {
+	i := instances.GetInstance(req.GetInstance().GetId())
+	if i == nil {
+		return nil
+	}
+	return i.lm
+}
 
 func installTool(pm *packagemanager.PackageManager, tool *cores.ToolRelease, downloadCB rpc.DownloadProgressCB, taskCB rpc.TaskProgressCB) error {
 	pme, release := pm.NewExplorer()
@@ -61,11 +146,50 @@ func installTool(pm *packagemanager.PackageManager, tool *cores.ToolRelease, dow
 
 // Create a new CoreInstance ready to be initialized, supporting directories are also created.
 func Create(req *rpc.CreateRequest, extraUserAgent ...string) (*rpc.CreateResponse, error) {
-	inst, err := instances.Create(extraUserAgent...)
-	if err != nil {
-		return nil, err
+	instance := &CoreInstance{}
+
+	// Setup downloads directory
+	downloadsDir := configuration.DownloadsDir(configuration.Settings)
+	if downloadsDir.NotExist() {
+		err := downloadsDir.MkdirAll()
+		if err != nil {
+			return nil, &arduino.PermissionDeniedError{Message: tr("Failed to create downloads directory"), Cause: err}
+		}
 	}
-	return &rpc.CreateResponse{Instance: inst}, nil
+
+	// Setup data directory
+	dataDir := configuration.DataDir(configuration.Settings)
+	packagesDir := configuration.PackagesDir(configuration.Settings)
+	if packagesDir.NotExist() {
+		err := packagesDir.MkdirAll()
+		if err != nil {
+			return nil, &arduino.PermissionDeniedError{Message: tr("Failed to create data directory"), Cause: err}
+		}
+	}
+
+	// Create package manager
+	userAgent := "arduino-cli/" + version.VersionInfo.VersionString
+	for _, ua := range extraUserAgent {
+		userAgent += " " + ua
+	}
+	instance.pm = packagemanager.NewBuilder(
+		dataDir,
+		configuration.PackagesDir(configuration.Settings),
+		downloadsDir,
+		dataDir.Join("tmp"),
+		userAgent,
+	).Build()
+	instance.lm = librariesmanager.NewLibraryManager(
+		dataDir,
+		downloadsDir,
+	)
+
+	// Save instance
+	instanceID := instances.AddAndAssignID(instance)
+
+	return &rpc.CreateResponse{
+		Instance: &rpc.Instance{Id: instanceID},
+	}, nil
 }
 
 // Init loads installed libraries and Platforms in CoreInstance with specified ID,
@@ -81,8 +205,8 @@ func Init(req *rpc.InitRequest, responseCallback func(r *rpc.InitResponse)) erro
 	if reqInst == nil {
 		return &arduino.InvalidInstanceError{}
 	}
-	instance := req.GetInstance()
-	if !instances.IsValid(instance) {
+	instance := instances.GetInstance(reqInst.GetId())
+	if instance == nil {
 		return &arduino.InvalidInstanceError{}
 	}
 
@@ -171,7 +295,7 @@ func Init(req *rpc.InitRequest, responseCallback func(r *rpc.InitResponse)) erro
 		// after reinitializing an instance after installing or uninstalling a core.
 		// If this is not done the information of the uninstall core is kept in memory,
 		// even if it should not.
-		pmb, commitPackageManager := instances.GetPackageManager(instance).NewBuilder()
+		pmb, commitPackageManager := instance.pm.NewBuilder()
 
 		// Load packages index
 		for _, URL := range allPackageIndexUrls {
@@ -266,7 +390,7 @@ func Init(req *rpc.InitRequest, responseCallback func(r *rpc.InitResponse)) erro
 		commitPackageManager()
 	}
 
-	pme, release := instances.GetPackageManagerExplorer(instance)
+	pme, release := instance.pm.NewExplorer()
 	defer release()
 
 	for _, err := range pme.LoadDiscoveries() {
@@ -279,7 +403,7 @@ func Init(req *rpc.InitRequest, responseCallback func(r *rpc.InitResponse)) erro
 		pme.IndexDir,
 		pme.DownloadDir,
 	)
-	_ = instances.SetLibraryManager(instance, lm) // should never fail
+	instance.lm = lm
 
 	// Load libraries
 	for _, pack := range pme.GetPackages() {
@@ -361,7 +485,7 @@ func Init(req *rpc.InitRequest, responseCallback func(r *rpc.InitResponse)) erro
 
 // Destroy FIXMEDOC
 func Destroy(ctx context.Context, req *rpc.DestroyRequest) (*rpc.DestroyResponse, error) {
-	if ok := instances.Delete(req.GetInstance()); !ok {
+	if ok := instances.RemoveID(req.GetInstance().GetId()); !ok {
 		return nil, &arduino.InvalidInstanceError{}
 	}
 	return &rpc.DestroyResponse{}, nil
@@ -370,7 +494,7 @@ func Destroy(ctx context.Context, req *rpc.DestroyRequest) (*rpc.DestroyResponse
 // UpdateLibrariesIndex updates the library_index.json
 func UpdateLibrariesIndex(ctx context.Context, req *rpc.UpdateLibrariesIndexRequest, downloadCB rpc.DownloadProgressCB) error {
 	logrus.Info("Updating libraries index")
-	lm := instances.GetLibraryManager(req.GetInstance())
+	lm := GetLibraryManager(req)
 	if lm == nil {
 		return &arduino.InvalidInstanceError{}
 	}
@@ -387,8 +511,7 @@ func UpdateLibrariesIndex(ctx context.Context, req *rpc.UpdateLibrariesIndexRequ
 	defer tmp.RemoveAll()
 
 	indexResource := resources.IndexResource{
-		URL:                          librariesmanager.LibraryIndexWithSignatureArchiveURL,
-		EnforceSignatureVerification: true,
+		URL: librariesmanager.LibraryIndexWithSignatureArchiveURL,
 	}
 	if err := indexResource.Download(lm.IndexFile.Parent(), downloadCB); err != nil {
 		return err
@@ -399,7 +522,7 @@ func UpdateLibrariesIndex(ctx context.Context, req *rpc.UpdateLibrariesIndexRequ
 
 // UpdateIndex FIXMEDOC
 func UpdateIndex(ctx context.Context, req *rpc.UpdateIndexRequest, downloadCB rpc.DownloadProgressCB) error {
-	if !instances.IsValid(req.GetInstance()) {
+	if instances.GetInstance(req.GetInstance().GetId()) == nil {
 		return &arduino.InvalidInstanceError{}
 	}
 

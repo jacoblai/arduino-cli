@@ -134,8 +134,8 @@ type NoBoardsDetectedError struct {
 func (e *NoBoardsDetectedError) Error() string {
 	return tr(
 		"Please specify an FQBN. The board on port %[1]s with protocol %[2]s can't be identified",
-		e.Port.GetAddress(),
-		e.Port.GetProtocol(),
+		e.Port.Address,
+		e.Port.Protocol,
 	)
 }
 
@@ -154,8 +154,8 @@ type MultipleBoardsDetectedError struct {
 func (e *MultipleBoardsDetectedError) Error() string {
 	return tr(
 		"Please specify an FQBN. Multiple possible boards detected on port %[1]s with protocol %[2]s",
-		e.Port.GetAddress(),
-		e.Port.GetProtocol(),
+		e.Port.Address,
+		e.Port.Protocol,
 	)
 }
 
@@ -290,8 +290,7 @@ func (e *MissingProgrammerError) Error() string {
 
 // ToRPCStatus converts the error into a *status.Status
 func (e *MissingProgrammerError) ToRPCStatus() *status.Status {
-	s, _ := status.New(codes.InvalidArgument, e.Error()).WithDetails(&rpc.MissingProgrammerError{})
-	return s
+	return status.New(codes.InvalidArgument, e.Error())
 }
 
 // ProgrammerRequiredForUploadError is returned when the upload can be done only using a programmer
@@ -831,15 +830,18 @@ func (e *SignatureVerificationFailedError) ToRPCStatus() *status.Status {
 
 // MultiplePlatformsError is returned when trying to detect
 // the Platform the user is trying to interact with and
-// multiple results are found.
+// and multiple results are found.
 type MultiplePlatformsError struct {
 	Platforms    []string
 	UserPlatform string
 }
 
 func (e *MultiplePlatformsError) Error() string {
-	return tr("Found %d platforms matching \"%s\": %s",
-		len(e.Platforms), e.UserPlatform, strings.Join(e.Platforms, ", "))
+	return tr("Found %d platform for reference \"%s\":\n%s",
+		len(e.Platforms),
+		e.UserPlatform,
+		strings.Join(e.Platforms, "\n"),
+	)
 }
 
 // ToRPCStatus converts the error into a *status.Status

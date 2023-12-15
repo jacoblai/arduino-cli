@@ -1,8 +1,8 @@
 ---
-name: github.com/spf13/viper/internal/encoding/json
+name: github.com/spf13/viper/inter/encoding/json
 version: v1.17.0
 type: go
-summary: 
+summary:
 homepage: https://pkg.go.dev/github.com/spf13/viper/internal/encoding/json
 license: mit
 licenses:

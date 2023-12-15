@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/protobuf/internal/order
+name: google.golang.org/protobuf/inter/order
 version: v1.31.0
 type: go
 summary: Package order provides ordered access to messages and maps.

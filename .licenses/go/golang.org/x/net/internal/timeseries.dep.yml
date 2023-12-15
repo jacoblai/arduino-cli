@@ -1,5 +1,5 @@
 ---
-name: golang.org/x/net/internal/timeseries
+name: golang.org/x/net/inter/timeseries
 version: v0.17.0
 type: go
 summary: Package timeseries implements a time series structure for stats collection.

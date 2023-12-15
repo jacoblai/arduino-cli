@@ -21,14 +21,14 @@ import (
 	"github.com/jacoblai/arduino-cli/arduino"
 	"github.com/jacoblai/arduino-cli/arduino/cores"
 	"github.com/jacoblai/arduino-cli/arduino/utils"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/commands"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // Details returns all details for a board including tools and HW identifiers.
 // This command basically gather al the information and translates it into the required grpc struct properties
 func Details(ctx context.Context, req *rpc.BoardDetailsRequest) (*rpc.BoardDetailsResponse, error) {
-	pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+	pme, release := commands.GetPackageManagerExplorer(req)
 	if pme == nil {
 		return nil, &arduino.InvalidInstanceError{}
 	}
@@ -39,7 +39,7 @@ func Details(ctx context.Context, req *rpc.BoardDetailsRequest) (*rpc.BoardDetai
 		return nil, &arduino.InvalidFQBNError{Cause: err}
 	}
 
-	boardPackage, boardPlatformRelease, board, boardProperties, _, err := pme.ResolveFQBN(fqbn)
+	boardPackage, boardPlatform, board, boardProperties, boardRefPlatform, err := pme.ResolveFQBN(fqbn)
 	if err != nil {
 		return nil, &arduino.UnknownFQBNError{Cause: err}
 	}
@@ -52,17 +52,24 @@ func Details(ctx context.Context, req *rpc.BoardDetailsRequest) (*rpc.BoardDetai
 	details.Version = board.PlatformRelease.Version.String()
 	details.IdentificationProperties = []*rpc.BoardIdentificationProperties{}
 	for _, p := range board.GetIdentificationProperties() {
-		details.IdentificationProperties = append(details.GetIdentificationProperties(), &rpc.BoardIdentificationProperties{
+		details.IdentificationProperties = append(details.IdentificationProperties, &rpc.BoardIdentificationProperties{
 			Properties: p.AsMap(),
 		})
 	}
 	for _, k := range boardProperties.Keys() {
 		v := boardProperties.Get(k)
-		details.BuildProperties = append(details.GetBuildProperties(), k+"="+v)
+		details.BuildProperties = append(details.BuildProperties, k+"="+v)
 	}
 	if !req.GetDoNotExpandBuildProperties() {
-		details.BuildProperties, _ = utils.ExpandBuildProperties(details.GetBuildProperties())
+		details.BuildProperties, _ = utils.ExpandBuildProperties(details.BuildProperties)
 	}
+
+	details.DebuggingSupported = boardProperties.ContainsKey("debug.executable") ||
+		boardPlatform.Properties.ContainsKey("debug.executable") ||
+		(boardRefPlatform != nil && boardRefPlatform.Properties.ContainsKey("debug.executable")) ||
+		// HOTFIX: Remove me when the `arduino:samd` core is updated
+		boardPlatform.String() == "arduino:samd@1.8.9" ||
+		boardPlatform.String() == "arduino:samd@1.8.8"
 
 	details.Package = &rpc.Package{
 		Name:       boardPackage.Name,
@@ -74,16 +81,16 @@ func Details(ctx context.Context, req *rpc.BoardDetailsRequest) (*rpc.BoardDetai
 	}
 
 	details.Platform = &rpc.BoardPlatform{
-		Architecture: boardPlatformRelease.Platform.Architecture,
-		Category:     boardPlatformRelease.Category,
-		Name:         boardPlatformRelease.Name,
+		Architecture: boardPlatform.Platform.Architecture,
+		Category:     boardPlatform.Platform.Category,
+		Name:         boardPlatform.Platform.Name,
 	}
 
-	if boardPlatformRelease.Resource != nil {
-		details.Platform.Url = boardPlatformRelease.Resource.URL
-		details.Platform.ArchiveFilename = boardPlatformRelease.Resource.ArchiveFileName
-		details.Platform.Checksum = boardPlatformRelease.Resource.Checksum
-		details.Platform.Size = boardPlatformRelease.Resource.Size
+	if boardPlatform.Resource != nil {
+		details.Platform.Url = boardPlatform.Resource.URL
+		details.Platform.ArchiveFilename = boardPlatform.Resource.ArchiveFileName
+		details.Platform.Checksum = boardPlatform.Resource.Checksum
+		details.Platform.Size = boardPlatform.Resource.Size
 	}
 
 	details.ConfigOptions = []*rpc.ConfigOption{}
@@ -104,14 +111,14 @@ func Details(ctx context.Context, req *rpc.BoardDetailsRequest) (*rpc.BoardDetai
 			}
 			configValue.Value = value
 			configValue.ValueLabel = values.Get(value)
-			configOption.Values = append(configOption.GetValues(), configValue)
+			configOption.Values = append(configOption.Values, configValue)
 		}
 
-		details.ConfigOptions = append(details.GetConfigOptions(), configOption)
+		details.ConfigOptions = append(details.ConfigOptions, configOption)
 	}
 
 	details.ToolsDependencies = []*rpc.ToolsDependencies{}
-	for _, tool := range boardPlatformRelease.ToolDependencies {
+	for _, tool := range boardPlatform.ToolDependencies {
 		toolRelease := pme.FindToolDependency(tool)
 		var systems []*rpc.Systems
 		if toolRelease != nil {
@@ -125,7 +132,7 @@ func Details(ctx context.Context, req *rpc.BoardDetailsRequest) (*rpc.BoardDetai
 				})
 			}
 		}
-		details.ToolsDependencies = append(details.GetToolsDependencies(), &rpc.ToolsDependencies{
+		details.ToolsDependencies = append(details.ToolsDependencies, &rpc.ToolsDependencies{
 			Name:     tool.ToolName,
 			Packager: tool.ToolPackager,
 			Version:  tool.ToolVersion.String(),
@@ -133,11 +140,10 @@ func Details(ctx context.Context, req *rpc.BoardDetailsRequest) (*rpc.BoardDetai
 		})
 	}
 
-	details.DefaultProgrammerId = board.GetDefaultProgrammerID()
 	details.Programmers = []*rpc.Programmer{}
-	for id, p := range boardPlatformRelease.Programmers {
-		details.Programmers = append(details.GetProgrammers(), &rpc.Programmer{
-			Platform: boardPlatformRelease.Name,
+	for id, p := range boardPlatform.Programmers {
+		details.Programmers = append(details.Programmers, &rpc.Programmer{
+			Platform: boardPlatform.Platform.Name,
 			Id:       id,
 			Name:     p.Name,
 		})

@@ -18,7 +18,6 @@ package main
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -29,8 +28,9 @@ import (
 	"time"
 
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
+	dbg "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/debug/v1"
+	"github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/settings/v1"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 var (
@@ -43,7 +43,7 @@ func main() {
 
 	// Establish a connection with the gRPC server, started with the command:
 	// arduino-cli daemon
-	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatal("error connecting to arduino-cli rpc server, you can start it by running `arduino-cli daemon`")
 	}
@@ -62,6 +62,8 @@ func main() {
 	// Create an instance of the gRPC clients.
 	client := rpc.NewArduinoCoreServiceClient(conn)
 
+	settingsClient := settings.NewSettingsServiceClient(conn)
+
 	// Now we can call various methods of the API...
 
 	// `Version` can be called without any setup or init procedure.
@@ -73,39 +75,39 @@ func main() {
 
 	// Use SetValue to configure the arduino-cli directories.
 	log.Println("calling SetValue")
-	callSetValue(client)
+	callSetValue(settingsClient)
 
-	// List all settings
-	log.Println("calling SettingsGetAll()")
-	callGetAll(client)
+	// List all the settings.
+	log.Println("calling GetAll()")
+	callGetAll(settingsClient)
 
 	// Merge applies multiple settings values at once.
-	log.Println("calling SettingsMerge()")
-	callMerge(client, `{"foo": {"value": "bar"}, "daemon":{"port":"422"}, "board_manager": {"additional_urls":["https://example.com"]}}`)
+	log.Println("calling Merge()")
+	callMerge(settingsClient, `{"foo": {"value": "bar"}, "daemon":{"port":"422"}, "board_manager": {"additional_urls":["https://example.com"]}}`)
 
-	log.Println("calling SettingsGetAll()")
-	callGetAll(client)
+	log.Println("calling GetAll()")
+	callGetAll(settingsClient)
 
-	log.Println("calling SettingsMerge()")
-	callMerge(client, `{"foo": {} }`)
+	log.Println("calling Merge()")
+	callMerge(settingsClient, `{"foo": {} }`)
 
-	log.Println("calling SettingsGetAll()")
-	callGetAll(client)
+	log.Println("calling GetAll()")
+	callGetAll(settingsClient)
 
-	log.Println("calling SettingsMerge()")
-	callMerge(client, `{"foo": "bar" }`)
+	log.Println("calling Merge()")
+	callMerge(settingsClient, `{"foo": "bar" }`)
 
 	// Get the value of the foo key.
-	log.Println("calling SettingsGetValue(foo)")
-	callGetValue(client)
+	log.Println("calling GetValue(foo)")
+	callGetValue(settingsClient)
 
-	// List all settings
-	log.Println("calling SettingsGetAll()")
-	callGetAll(client)
+	// List all the settings.
+	log.Println("calling GetAll()")
+	callGetAll(settingsClient)
 
 	// Write settings to file.
 	log.Println("calling Write()")
-	callWrite(client)
+	callWrite(settingsClient)
 
 	// Before we can do anything with the CLI, an "instance" must be created.
 	// We keep a reference to the created instance because we will need it to
@@ -118,7 +120,7 @@ func main() {
 
 	// We set up the proxy and then run the update to verify that the proxy settings are currently used
 	log.Println("calling setProxy")
-	callSetProxy(client)
+	callSetProxy(settingsClient)
 
 	// With a brand new instance, the first operation should always be updating
 	// the index.
@@ -141,6 +143,11 @@ func main() {
 	// Install arduino:samd@1.6.19
 	log.Println("calling PlatformInstall(arduino:samd@1.6.19)")
 	callPlatformInstall(client, instance)
+
+	// Now list the installed platforms to double check previous installation
+	// went right.
+	log.Println("calling PlatformList()")
+	callPlatformList(client, instance)
 
 	// Upgrade the installed platform to the latest version.
 	log.Println("calling PlatformUpgrade(arduino:samd)")
@@ -244,21 +251,22 @@ func callVersion(client rpc.ArduinoCoreServiceClient) {
 	log.Printf("arduino-cli version: %v", versionResp.GetVersion())
 }
 
-func callSetValue(client rpc.ArduinoCoreServiceClient) {
-	_, err := client.SettingsSetValue(context.Background(),
-		&rpc.SettingsSetValueRequest{
+func callSetValue(client settings.SettingsServiceClient) {
+	_, err := client.SetValue(context.Background(),
+		&settings.SetValueRequest{
 			Key:      "directories",
 			JsonData: `{"data": "` + dataDir + `", "downloads": "` + path.Join(dataDir, "staging") + `", "user": "` + path.Join(dataDir, "sketchbook") + `"}`,
 		})
 
 	if err != nil {
 		log.Fatalf("Error setting settings value: %s", err)
+
 	}
 }
 
-func callSetProxy(client rpc.ArduinoCoreServiceClient) {
-	_, err := client.SettingsSetValue(context.Background(),
-		&rpc.SettingsSetValueRequest{
+func callSetProxy(client settings.SettingsServiceClient) {
+	_, err := client.SetValue(context.Background(),
+		&settings.SetValueRequest{
 			Key:      "network.proxy",
 			JsonData: `"http://localhost:3128"`,
 		})
@@ -268,9 +276,9 @@ func callSetProxy(client rpc.ArduinoCoreServiceClient) {
 	}
 }
 
-func callUnsetProxy(client rpc.ArduinoCoreServiceClient) {
-	_, err := client.SettingsSetValue(context.Background(),
-		&rpc.SettingsSetValueRequest{
+func callUnsetProxy(client settings.SettingsServiceClient) {
+	_, err := client.SetValue(context.Background(),
+		&settings.SetValueRequest{
 			Key:      "network.proxy",
 			JsonData: `""`,
 		})
@@ -280,9 +288,9 @@ func callUnsetProxy(client rpc.ArduinoCoreServiceClient) {
 	}
 }
 
-func callMerge(client rpc.ArduinoCoreServiceClient, jsonData string) {
-	_, err := client.SettingsMerge(context.Background(),
-		&rpc.SettingsMergeRequest{
+func callMerge(client settings.SettingsServiceClient, jsonData string) {
+	_, err := client.Merge(context.Background(),
+		&settings.MergeRequest{
 			JsonData: jsonData,
 		})
 
@@ -291,9 +299,9 @@ func callMerge(client rpc.ArduinoCoreServiceClient, jsonData string) {
 	}
 }
 
-func callGetValue(client rpc.ArduinoCoreServiceClient) {
-	getValueResp, err := client.SettingsGetValue(context.Background(),
-		&rpc.SettingsGetValueRequest{
+func callGetValue(client settings.SettingsServiceClient) {
+	getValueResp, err := client.GetValue(context.Background(),
+		&settings.GetValueRequest{
 			Key: "foo",
 		})
 
@@ -304,8 +312,8 @@ func callGetValue(client rpc.ArduinoCoreServiceClient) {
 	log.Printf("Value: %s: %s", getValueResp.GetKey(), getValueResp.GetJsonData())
 }
 
-func callGetAll(client rpc.ArduinoCoreServiceClient) {
-	getAllResp, err := client.SettingsGetAll(context.Background(), &rpc.SettingsGetAllRequest{})
+func callGetAll(client settings.SettingsServiceClient) {
+	getAllResp, err := client.GetAll(context.Background(), &settings.GetAllRequest{})
 
 	if err != nil {
 		log.Fatalf("Error getting settings: %s", err)
@@ -314,10 +322,10 @@ func callGetAll(client rpc.ArduinoCoreServiceClient) {
 	log.Printf("Settings: %s", getAllResp.GetJsonData())
 }
 
-func callWrite(client rpc.ArduinoCoreServiceClient) {
-	_, err := client.SettingsWrite(context.Background(),
-		&rpc.SettingsWriteRequest{
-			FilePath: path.Join(dataDir, "written-rpc.Settingsyml"),
+func callWrite(client settings.SettingsServiceClient) {
+	_, err := client.Write(context.Background(),
+		&settings.WriteRequest{
+			FilePath: path.Join(dataDir, "written-settings.yml"),
 		})
 
 	if err != nil {
@@ -330,7 +338,7 @@ func createInstance(client rpc.ArduinoCoreServiceClient) *rpc.Instance {
 	if err != nil {
 		log.Fatalf("Error creating server instance: %s", err)
 	}
-	return res.GetInstance()
+	return res.Instance
 }
 
 func initInstance(client rpc.ArduinoCoreServiceClient, instance *rpc.Instance) {
@@ -344,7 +352,7 @@ func initInstance(client rpc.ArduinoCoreServiceClient, instance *rpc.Instance) {
 	for {
 		res, err := stream.Recv()
 		// Server has finished sending
-		if errors.Is(err, io.EOF) {
+		if err == io.EOF {
 			break
 		}
 
@@ -380,7 +388,7 @@ func callUpdateIndex(client rpc.ArduinoCoreServiceClient, instance *rpc.Instance
 		uiResp, err := uiRespStream.Recv()
 
 		// the server is done
-		if errors.Is(err, io.EOF) {
+		if err == io.EOF {
 			log.Print("Update index done")
 			break
 		}
@@ -411,7 +419,7 @@ func callPlatformSearch(client rpc.ArduinoCoreServiceClient, instance *rpc.Insta
 	for _, plat := range platforms {
 		// We only print ID and version of the platforms found but you can look
 		// at the definition for the rpc.Platform struct for more fields.
-		log.Printf("Search result: %+v - %+v", plat.GetMetadata().GetId(), plat.GetLatestVersion())
+		log.Printf("Search result: %+v - %+v", plat.GetId(), plat.GetLatest())
 	}
 }
 
@@ -433,7 +441,7 @@ func callPlatformInstall(client rpc.ArduinoCoreServiceClient, instance *rpc.Inst
 		installResp, err := installRespStream.Recv()
 
 		// The server is done.
-		if errors.Is(err, io.EOF) {
+		if err == io.EOF {
 			log.Printf("Install done")
 			break
 		}
@@ -455,6 +463,21 @@ func callPlatformInstall(client rpc.ArduinoCoreServiceClient, instance *rpc.Inst
 	}
 }
 
+func callPlatformList(client rpc.ArduinoCoreServiceClient, instance *rpc.Instance) {
+	listResp, err := client.PlatformList(context.Background(),
+		&rpc.PlatformListRequest{Instance: instance})
+
+	if err != nil {
+		log.Fatalf("List error: %s", err)
+	}
+
+	for _, plat := range listResp.GetInstalledPlatforms() {
+		// We only print ID and version of the installed platforms but you can look
+		// at the definition for the rpc.Platform struct for more fields.
+		log.Printf("Installed platform: %s - %s", plat.GetId(), plat.GetInstalled())
+	}
+}
+
 func callPlatformUpgrade(client rpc.ArduinoCoreServiceClient, instance *rpc.Instance) {
 	upgradeRespStream, err := client.PlatformUpgrade(context.Background(),
 		&rpc.PlatformUpgradeRequest{
@@ -472,7 +495,7 @@ func callPlatformUpgrade(client rpc.ArduinoCoreServiceClient, instance *rpc.Inst
 		upgradeResp, err := upgradeRespStream.Recv()
 
 		// The server is done.
-		if errors.Is(err, io.EOF) {
+		if err == io.EOF {
 			log.Printf("Upgrade done")
 			break
 		}
@@ -521,8 +544,8 @@ func callBoardSearch(client rpc.ArduinoCoreServiceClient, instance *rpc.Instance
 		log.Fatalf("Error getting board data: %s\n", err)
 	}
 
-	for _, board := range res.GetBoards() {
-		log.Printf("Board Name: %s, Board Platform: %s\n", board.GetName(), board.GetPlatform().GetMetadata().GetId())
+	for _, board := range res.Boards {
+		log.Printf("Board Name: %s, Board Platform: %s\n", board.Name, board.Platform.Id)
 	}
 }
 
@@ -545,7 +568,7 @@ func callCompile(client rpc.ArduinoCoreServiceClient, instance *rpc.Instance) {
 		compResp, err := compRespStream.Recv()
 
 		// The server is done.
-		if errors.Is(err, io.EOF) {
+		if err == io.EOF {
 			log.Print("Compilation done")
 			break
 		}
@@ -585,7 +608,7 @@ func callUpload(client rpc.ArduinoCoreServiceClient, instance *rpc.Instance) {
 
 	for {
 		uplResp, err := uplRespStream.Recv()
-		if errors.Is(err, io.EOF) {
+		if err == io.EOF {
 			log.Printf("Upload done")
 			break
 		}
@@ -634,39 +657,45 @@ func callBoardList(client rpc.ArduinoCoreServiceClient, instance *rpc.Instance) 
 }
 
 func callBoardListWatch(client rpc.ArduinoCoreServiceClient, instance *rpc.Instance) {
-	req := &rpc.BoardListWatchRequest{Instance: instance}
-	watchClient, err := client.BoardListWatch(context.Background(), req)
+	watchClient, err := client.BoardListWatch(context.Background())
 	if err != nil {
 		log.Fatalf("Board list watch error: %s\n", err)
 	}
 
 	// Start the watcher
+	watchClient.Send(&rpc.BoardListWatchRequest{
+		Instance: instance,
+	})
+
 	go func() {
 		for {
 			res, err := watchClient.Recv()
-			if errors.Is(err, io.EOF) {
+			if err == io.EOF {
 				log.Print("closing board watch connection")
 				return
 			} else if err != nil {
 				log.Fatalf("Board list watch error: %s\n", err)
 			}
-			if res.GetEventType() == "error" {
-				log.Printf("res: %s\n", res.GetError())
+			if res.EventType == "error" {
+				log.Printf("res: %s\n", res.Error)
 				continue
 			}
 
-			log.Printf("event: %s, address: %s\n", res.GetEventType(), res.GetPort().GetPort().GetAddress())
-			if res.GetEventType() == "add" {
-				log.Printf("protocol: %s, ", res.GetPort().GetPort().GetProtocol())
-				log.Printf("protocolLabel: %s, ", res.GetPort().GetPort().GetProtocolLabel())
-				log.Printf("boards: %s\n\n", res.GetPort().GetMatchingBoards())
+			log.Printf("event: %s, address: %s\n", res.EventType, res.Port.Port.Address)
+			if res.EventType == "add" {
+				log.Printf("protocol: %s, ", res.Port.Port.Protocol)
+				log.Printf("protocolLabel: %s, ", res.Port.Port.ProtocolLabel)
+				log.Printf("boards: %s\n\n", res.Port.MatchingBoards)
 			}
 		}
 	}()
 
 	// Watch for 10 seconds and then interrupts
-	timer := time.NewTicker(10 * time.Second)
+	timer := time.NewTicker(time.Duration(10 * time.Second))
 	<-timer.C
+	watchClient.Send(&rpc.BoardListWatchRequest{
+		Interrupt: true,
+	})
 }
 
 func callPlatformUnInstall(client rpc.ArduinoCoreServiceClient, instance *rpc.Instance) {
@@ -684,7 +713,7 @@ func callPlatformUnInstall(client rpc.ArduinoCoreServiceClient, instance *rpc.In
 	// Loop and consume the server stream until all the operations are done.
 	for {
 		uninstallResp, err := uninstallRespStream.Recv()
-		if errors.Is(err, io.EOF) {
+		if err == io.EOF {
 			log.Print("Uninstall done")
 			break
 		}
@@ -710,7 +739,7 @@ func callUpdateLibraryIndex(client rpc.ArduinoCoreServiceClient, instance *rpc.I
 	// Loop and consume the server stream until all the operations are done.
 	for {
 		resp, err := libIdxUpdateStream.Recv()
-		if errors.Is(err, io.EOF) {
+		if err == io.EOF {
 			log.Print("Library index update done")
 			break
 		}
@@ -740,7 +769,7 @@ func callLibDownload(client rpc.ArduinoCoreServiceClient, instance *rpc.Instance
 	// Loop and consume the server stream until all the operations are done.
 	for {
 		downloadResp, err := downloadRespStream.Recv()
-		if errors.Is(err, io.EOF) {
+		if err == io.EOF {
 			log.Print("Lib download done")
 			break
 		}
@@ -769,7 +798,7 @@ func callLibInstall(client rpc.ArduinoCoreServiceClient, instance *rpc.Instance,
 
 	for {
 		installResp, err := installRespStream.Recv()
-		if errors.Is(err, io.EOF) {
+		if err == io.EOF {
 			log.Print("Lib install done")
 			break
 		}
@@ -802,7 +831,7 @@ func callLibInstallNoDeps(client rpc.ArduinoCoreServiceClient, instance *rpc.Ins
 
 	for {
 		installResp, err := installRespStream.Recv()
-		if errors.Is(err, io.EOF) {
+		if err == io.EOF {
 			log.Print("Lib install done")
 			break
 		}
@@ -831,7 +860,7 @@ func callLibUpgradeAll(client rpc.ArduinoCoreServiceClient, instance *rpc.Instan
 
 	for {
 		resp, err := libUpgradeAllRespStream.Recv()
-		if errors.Is(err, io.EOF) {
+		if err == io.EOF {
 			log.Printf("Lib upgrade all done")
 			break
 		}
@@ -915,7 +944,7 @@ func callLibUninstall(client rpc.ArduinoCoreServiceClient, instance *rpc.Instanc
 
 	for {
 		uninstallResp, err := libUninstallRespStream.Recv()
-		if errors.Is(err, io.EOF) {
+		if err == io.EOF {
 			log.Printf("Lib uninstall done")
 			break
 		}
@@ -930,11 +959,11 @@ func callLibUninstall(client rpc.ArduinoCoreServiceClient, instance *rpc.Instanc
 	}
 }
 
-func callDebugger(debugStreamingOpenClient rpc.ArduinoCoreService_DebugClient, instance *rpc.Instance) {
+func callDebugger(debugStreamingOpenClient dbg.DebugService_DebugClient, instance *rpc.Instance) {
 	currDir, _ := os.Getwd()
 	log.Printf("Send debug request")
-	err := debugStreamingOpenClient.Send(&rpc.DebugRequest{
-		DebugRequest: &rpc.GetDebugConfigRequest{
+	err := debugStreamingOpenClient.Send(&dbg.DebugRequest{
+		DebugRequest: &dbg.DebugConfigRequest{
 			Instance:   &rpc.Instance{Id: instance.GetId()},
 			Fqbn:       "arduino:samd:mkr1000",
 			SketchPath: filepath.Join(currDir, "hello"),
@@ -949,7 +978,7 @@ func callDebugger(debugStreamingOpenClient rpc.ArduinoCoreService_DebugClient, i
 	waitForPrompt(debugStreamingOpenClient, "(gdb)")
 	// Wait for gdb to init and show the prompt
 	log.Printf("Send 'info registers' rcommand")
-	err = debugStreamingOpenClient.Send(&rpc.DebugRequest{Data: []byte("info registers\n")})
+	err = debugStreamingOpenClient.Send(&dbg.DebugRequest{Data: []byte("info registers\n")})
 	if err != nil {
 		log.Fatalf("Send error: %s\n", err)
 	}
@@ -959,7 +988,7 @@ func callDebugger(debugStreamingOpenClient rpc.ArduinoCoreService_DebugClient, i
 
 	// Send quit command to gdb
 	log.Printf("Send 'quit' command")
-	err = debugStreamingOpenClient.Send(&rpc.DebugRequest{Data: []byte("quit\n")})
+	err = debugStreamingOpenClient.Send(&dbg.DebugRequest{Data: []byte("quit\n")})
 	if err != nil {
 		log.Fatalf("Send error: %s\n", err)
 	}
@@ -972,7 +1001,7 @@ func callDebugger(debugStreamingOpenClient rpc.ArduinoCoreService_DebugClient, i
 	}
 }
 
-func waitForPrompt(debugStreamingOpenClient rpc.ArduinoCoreService_DebugClient, prompt string) {
+func waitForPrompt(debugStreamingOpenClient dbg.DebugService_DebugClient, prompt string) {
 	var buffer bytes.Buffer
 	for {
 		compResp, err := debugStreamingOpenClient.Recv()

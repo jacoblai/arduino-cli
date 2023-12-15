@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/pretty
+name: google.golang.org/grpc/inter/pretty
 version: v1.59.0
 type: go
 summary: Package pretty defines helper functions to pretty-print structs for logging.

@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/transport/networktype
+name: google.golang.org/grpc/inter/transport/networktype
 version: v1.59.0
 type: go
 summary: Package networktype declares the network type to be used in the default dialer.

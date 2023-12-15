@@ -17,19 +17,18 @@ package core
 
 import (
 	"context"
+	"github.com/jacoblai/arduino-cli/arduino/cores"
 
 	"github.com/jacoblai/arduino-cli/arduino"
-	"github.com/jacoblai/arduino-cli/arduino/cores"
 	"github.com/jacoblai/arduino-cli/arduino/cores/packagemanager"
 	"github.com/jacoblai/arduino-cli/commands"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // PlatformUpgrade FIXMEDOC
 func PlatformUpgrade(ctx context.Context, req *rpc.PlatformUpgradeRequest, downloadCB rpc.DownloadProgressCB, taskCB rpc.TaskProgressCB) (*rpc.PlatformUpgradeResponse, error) {
 	upgrade := func() (*cores.PlatformRelease, error) {
-		pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+		pme, release := commands.GetPackageManagerExplorer(req)
 		if pme == nil {
 			return nil, &arduino.InvalidInstanceError{}
 		}
@@ -37,10 +36,10 @@ func PlatformUpgrade(ctx context.Context, req *rpc.PlatformUpgradeRequest, downl
 
 		// Extract all PlatformReference to platforms that have updates
 		ref := &packagemanager.PlatformReference{
-			Package:              req.GetPlatformPackage(),
-			PlatformArchitecture: req.GetArchitecture(),
+			Package:              req.PlatformPackage,
+			PlatformArchitecture: req.Architecture,
 		}
-		platform, err := pme.DownloadAndInstallPlatformUpgrades(ref, downloadCB, taskCB, req.GetSkipPostInstall(), req.GetSkipPreUninstall())
+		platform, err := pme.DownloadAndInstallPlatformUpgrades(ref, downloadCB, taskCB, req.GetSkipPostInstall())
 		if err != nil {
 			return platform, err
 		}
@@ -49,17 +48,15 @@ func PlatformUpgrade(ctx context.Context, req *rpc.PlatformUpgradeRequest, downl
 	}
 
 	var rpcPlatform *rpc.Platform
+
 	platformRelease, err := upgrade()
 	if platformRelease != nil {
-		rpcPlatform = &rpc.Platform{
-			Metadata: commands.PlatformToRPCPlatformMetadata(platformRelease.Platform),
-			Release:  commands.PlatformReleaseToRPC(platformRelease),
-		}
+		rpcPlatform = commands.PlatformReleaseToRPC(platformRelease)
 	}
 	if err != nil {
 		return &rpc.PlatformUpgradeResponse{Platform: rpcPlatform}, err
 	}
-	if err := commands.Init(&rpc.InitRequest{Instance: req.GetInstance()}, nil); err != nil {
+	if err := commands.Init(&rpc.InitRequest{Instance: req.Instance}, nil); err != nil {
 		return nil, err
 	}
 

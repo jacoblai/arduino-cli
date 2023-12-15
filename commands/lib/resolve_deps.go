@@ -22,15 +22,13 @@ import (
 
 	"github.com/jacoblai/arduino-cli/arduino"
 	"github.com/jacoblai/arduino-cli/arduino/libraries"
-	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesindex"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/commands"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
-	semver "go.bug.st/relaxed-semver"
 )
 
 // LibraryResolveDependencies FIXMEDOC
 func LibraryResolveDependencies(ctx context.Context, req *rpc.LibraryResolveDependenciesRequest) (*rpc.LibraryResolveDependenciesResponse, error) {
-	lm := instances.GetLibraryManager(req.GetInstance())
+	lm := commands.GetLibraryManager(req)
 	if lm == nil {
 		return nil, &arduino.InvalidInstanceError{}
 	}
@@ -48,21 +46,7 @@ func LibraryResolveDependencies(ctx context.Context, req *rpc.LibraryResolveDepe
 	}
 
 	// Resolve all dependencies...
-	var overrides []*librariesindex.Release
-	if req.GetDoNotUpdateInstalledLibraries() {
-		libs := lm.FindAllInstalled()
-		libs = libs.FilterByVersionAndInstallLocation(nil, libraries.User)
-		for _, lib := range libs {
-			release := lm.Index.FindRelease(&librariesindex.Reference{
-				Name:    lib.Name,
-				Version: lib.Version,
-			})
-			if release != nil {
-				overrides = append(overrides, release)
-			}
-		}
-	}
-	deps := lm.Index.ResolveDependencies(reqLibRelease, overrides)
+	deps := lm.Index.ResolveDependencies(reqLibRelease)
 
 	// If no solution has been found
 	if len(deps) == 0 {
@@ -81,23 +65,18 @@ func LibraryResolveDependencies(ctx context.Context, req *rpc.LibraryResolveDepe
 	res := []*rpc.LibraryDependencyStatus{}
 	for _, dep := range deps {
 		// ...and add information on currently installed versions of the libraries
-		var installed *semver.Version
-		required := dep.GetVersion()
+		installed := ""
 		if installedLib, has := installedLibs[dep.GetName()]; has {
-			installed = installedLib.Version
-			if installed != nil && required != nil && installed.Equal(required) {
-				// avoid situations like installed=0.53 and required=0.53.0
-				required = installed
-			}
+			installed = installedLib.Version.String()
 		}
 		res = append(res, &rpc.LibraryDependencyStatus{
 			Name:             dep.GetName(),
-			VersionRequired:  required.String(),
-			VersionInstalled: installed.String(),
+			VersionRequired:  dep.GetVersion().String(),
+			VersionInstalled: installed,
 		})
 	}
 	sort.Slice(res, func(i, j int) bool {
-		return res[i].GetName() < res[j].GetName()
+		return res[i].Name < res[j].Name
 	})
 	return &rpc.LibraryResolveDependenciesResponse{Dependencies: res}, nil
 }

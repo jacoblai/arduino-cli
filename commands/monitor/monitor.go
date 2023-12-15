@@ -25,7 +25,7 @@ import (
 	"github.com/jacoblai/arduino-cli/arduino/cores"
 	"github.com/jacoblai/arduino-cli/arduino/cores/packagemanager"
 	pluggableMonitor "github.com/jacoblai/arduino-cli/arduino/monitor"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/commands"
 	"github.com/jacoblai/arduino-cli/i18n"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 	"github.com/sirupsen/logrus"
@@ -61,7 +61,7 @@ func (p *PortProxy) Close() error {
 // Monitor opens a communication port. It returns a PortProxy to communicate with the port and a PortDescriptor
 // that describes the available configuration settings.
 func Monitor(ctx context.Context, req *rpc.MonitorRequest) (*PortProxy, *pluggableMonitor.PortDescriptor, error) {
-	pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+	pme, release := commands.GetPackageManagerExplorer(req)
 	if pme == nil {
 		return nil, nil, &arduino.InvalidInstanceError{}
 	}
@@ -84,10 +84,10 @@ func Monitor(ctx context.Context, req *rpc.MonitorRequest) (*PortProxy, *pluggab
 
 	// Apply user-requested settings
 	if portConfig := req.GetPortConfiguration(); portConfig != nil {
-		for _, setting := range portConfig.GetSettings() {
-			boardSettings.Remove(setting.GetSettingId()) // Remove board settings overridden by the user
-			if err := m.Configure(setting.GetSettingId(), setting.GetValue()); err != nil {
-				logrus.Errorf("Could not set configuration %s=%s: %s", setting.GetSettingId(), setting.GetValue(), err)
+		for _, setting := range portConfig.Settings {
+			boardSettings.Remove(setting.SettingId) // Remove board settings overridden by the user
+			if err := m.Configure(setting.SettingId, setting.Value); err != nil {
+				logrus.Errorf("Could not set configuration %s=%s: %s", setting.SettingId, setting.Value, err)
 			}
 		}
 	}

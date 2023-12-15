@@ -48,7 +48,7 @@ tasks:
     desc: Build the Go code
     dir: '{{default "./" .GO_MODULE_PATH}}'
     cmds:
-      - go build {{default "" .EXTRA_FLAGS}} {{.LDFLAGS}}
+      - go build -v {{default "" .EXTRA_FLAGS}} {{.LDFLAGS}}
 
   # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/deploy-cobra-mkdocs-versioned-poetry/Taskfile.yml
   go:cli-docs:
@@ -80,12 +80,14 @@ tasks:
     dir: '{{default "./" .GO_MODULE_PATH}}'
     cmds:
       - |
-        if ! which golangci-lint &>/dev/null; then
-          echo "golangci-lint not installed or not in PATH. Please install: https://golangci-lint.run/usage/install/"
+        if ! which golint &>/dev/null; then
+          echo "golint not installed or not in PATH. Please install: https://github.com/golang/lint#installation"
           exit 1
         fi
       - |
-        golangci-lint run
+        golint \
+          {{default "-min_confidence 0.8 -set_exit_status" .GO_LINT_FLAGS}} \
+          {{default .DEFAULT_GO_PACKAGES .GO_PACKAGES}}
 
   # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/test-go-task/Taskfile.yml
   go:test:
@@ -125,6 +127,13 @@ tasks:
           {{default .DEFAULT_INTEGRATIONTEST_GO_PACKAGES .GO_PACKAGES}} \
           {{.TEST_LDFLAGS}}
         go tool covdata textfmt -i=coverage_data -o coverage_integration.txt
+
+  # Source: https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/check-go-task/Taskfile.yml
+  go:vet:
+    desc: Check for errors in Go code
+    dir: '{{default "./" .GO_MODULE_PATH}}'
+    cmds:
+      - go vet {{default .DEFAULT_GO_PACKAGES .GO_PACKAGES}}
 
   go:easyjson-generate:
     desc: Run easyjson code generation
@@ -237,11 +246,15 @@ tasks:
     desc: Compile protobuf definitions
     cmds:
       - '{{ default "protoc" .PROTOC_BINARY }} --proto_path=rpc --go_out=./rpc --go_opt=paths=source_relative --go-grpc_out=./rpc --go-grpc_opt=paths=source_relative ./rpc/cc/arduino/cli/commands/v1/*.proto'
+      - '{{ default "protoc" .PROTOC_BINARY }} --proto_path=rpc --go_out=./rpc --go_opt=paths=source_relative --go-grpc_out=./rpc --go-grpc_opt=paths=source_relative ./rpc/cc/arduino/cli/settings/v1/*.proto'
+      - '{{ default "protoc" .PROTOC_BINARY }} --proto_path=rpc --go_out=./rpc --go_opt=paths=source_relative --go-grpc_out=./rpc --go-grpc_opt=paths=source_relative ./rpc/cc/arduino/cli/debug/v1/*.proto'
 
   protoc:docs:
     desc: Generate docs for protobuf definitions
     cmds:
       - '{{ default "protoc" .PROTOC_BINARY }} --doc_out=./docs/rpc --doc_opt=markdown,commands.md --proto_path=rpc ./rpc/cc/arduino/cli/commands/v1/*.proto'
+      - '{{ default "protoc" .PROTOC_BINARY }} --doc_out=./docs/rpc --doc_opt=markdown,settings.md --proto_path=rpc ./rpc/cc/arduino/cli/settings/v1/*.proto'
+      - '{{ default "protoc" .PROTOC_BINARY }} --doc_out=./docs/rpc --doc_opt=markdown,debug.md --proto_path=rpc ./rpc/cc/arduino/cli/debug/v1/*.proto'
 
   docs:include-configuration-json-schema:
     desc: Copy configuration JSON schema to make it available in documentation
@@ -271,10 +284,20 @@ tasks:
       - task: go:build
 
   test:
-    desc: Run the full testsuite
+    desc: Run the full testsuite, `legacy` will be skipped
     cmds:
       - task: go:test
       - task: go:integration-test
+
+  test-legacy:
+    desc: Run tests for the `legacy` package
+    cmds:
+      - |
+        go test \
+          {{ default "-v -failfast" .GOFLAGS }} \
+          -coverprofile=coverage_legacy.txt \
+          ./legacy/... \
+          {{.TEST_LDFLAGS}}
 
   test-unit-race:
     desc: Run unit tests only with race condition detection
@@ -288,10 +311,17 @@ tasks:
           {{.TEST_LDFLAGS}}
 
   check:
-    desc: Check fmt and lint
+    desc: Check fmt and lint, `legacy` will be skipped
     cmds:
+      - task: go:vet
       - task: go:lint
       - task: protoc:check
+
+  check-legacy:
+    desc: Check fmt and lint for the `legacy` package
+    cmds:
+      - test -z $(go fmt ./legacy/...)
+      - go vet ./legacy/...
 
   rpc-client:
     desc: Run the rpc client test routine (server must be already started)
@@ -346,10 +376,10 @@ tasks:
 vars:
   PROJECT_NAME: "arduino-cli"
   DIST_DIR: "dist"
-  # all modules of this project except for integration test
+  # all modules of this project except for "legacy/..." module and integration test
   DEFAULT_GO_PACKAGES:
     sh: |
-      echo $(cd {{default "./" .GO_MODULE_PATH}} && go list ./... | grep -v internal/integrationtest | tr '\n' ' ' || echo '"ERROR: Unable to discover Go packages"')
+      echo $(cd {{default "./" .GO_MODULE_PATH}} && go list ./... | grep -v internal/integrationtest | grep -v legacy | tr '\n' ' ' || echo '"ERROR: Unable to discover Go packages"')
   DEFAULT_INTEGRATIONTEST_GO_PACKAGES:
     sh: |
       echo $(cd {{default "./" .GO_MODULE_PATH}} && go list ./... | grep internal/integrationtest | tr '\n' ' ' || echo '"ERROR: Unable to discover Go packages"')
@@ -361,7 +391,7 @@ vars:
   TIMESTAMP_SHORT:
     sh: echo "{{now | date "20060102"}}"
   TAG:
-    sh: echo "$(git tag --points-at=HEAD 2> /dev/null | head -n1 | sed 's/^v//')"
+    sh: echo "$(git tag --points-at=HEAD 2> /dev/null | head -n1)"
   VERSION: "{{if .NIGHTLY}}nightly-{{.TIMESTAMP_SHORT}}{{else if .TAG}}{{.TAG}}{{else}}{{.PACKAGE_NAME_PREFIX}}git-snapshot{{end}}"
   CONFIGURATION_PACKAGE: "github.com/jacoblai/arduino-cli/version"
   LDFLAGS: >-

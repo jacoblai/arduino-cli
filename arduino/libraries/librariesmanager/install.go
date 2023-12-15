@@ -24,14 +24,14 @@ import (
 
 	paths "github.com/arduino/go-paths-helper"
 	"github.com/codeclysm/extract/v3"
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/jacoblai/arduino-cli/arduino"
 	"github.com/jacoblai/arduino-cli/arduino/globals"
 	"github.com/jacoblai/arduino-cli/arduino/libraries"
 	"github.com/jacoblai/arduino-cli/arduino/libraries/librariesindex"
 	"github.com/jacoblai/arduino-cli/arduino/utils"
 	semver "go.bug.st/relaxed-semver"
+	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
 // LibraryInstallPlan contains the main information required to perform a library

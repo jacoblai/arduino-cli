@@ -1,5 +1,5 @@
 ---
-name: github.com/go-git/go-git/v5/plumbing/transport/internal/common
+name: github.com/go-git/go-git/v5/plumbing/transport/inter/common
 version: v5.4.2
 type: go
 summary: Package common implements the git pack protocol with a pluggable transport.

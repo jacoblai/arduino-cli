@@ -20,18 +20,17 @@ import (
 
 	"github.com/jacoblai/arduino-cli/arduino"
 	"github.com/jacoblai/arduino-cli/commands"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // LibraryUpgradeAll upgrades all the available libraries
 func LibraryUpgradeAll(req *rpc.LibraryUpgradeAllRequest, downloadCB rpc.DownloadProgressCB, taskCB rpc.TaskProgressCB) error {
-	lm := instances.GetLibraryManager(req.GetInstance())
+	lm := commands.GetLibraryManager(req)
 	if lm == nil {
 		return &arduino.InvalidInstanceError{}
 	}
 
-	if err := upgrade(req.GetInstance(), listLibraries(lm, true, false), downloadCB, taskCB); err != nil {
+	if err := upgrade(req.Instance, listLibraries(lm, true, false), downloadCB, taskCB); err != nil {
 		return err
 	}
 
@@ -44,7 +43,7 @@ func LibraryUpgradeAll(req *rpc.LibraryUpgradeAllRequest, downloadCB rpc.Downloa
 
 // LibraryUpgrade upgrades a library
 func LibraryUpgrade(ctx context.Context, req *rpc.LibraryUpgradeRequest, downloadCB rpc.DownloadProgressCB, taskCB rpc.TaskProgressCB) error {
-	lm := instances.GetLibraryManager(req.GetInstance())
+	lm := commands.GetLibraryManager(req)
 	if lm == nil {
 		return &arduino.InvalidInstanceError{}
 	}
@@ -62,7 +61,7 @@ func LibraryUpgrade(ctx context.Context, req *rpc.LibraryUpgradeRequest, downloa
 	}
 
 	// Install update
-	return upgrade(req.GetInstance(), []*installedLib{lib}, downloadCB, taskCB)
+	return upgrade(req.Instance, []*installedLib{lib}, downloadCB, taskCB)
 }
 
 func upgrade(instance *rpc.Instance, libs []*installedLib, downloadCB rpc.DownloadProgressCB, taskCB rpc.TaskProgressCB) error {

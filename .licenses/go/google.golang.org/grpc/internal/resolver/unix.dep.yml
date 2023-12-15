@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/resolver/unix
+name: google.golang.org/grpc/inter/resolver/unix
 version: v1.59.0
 type: go
 summary: Package unix implements a resolver for unix targets.

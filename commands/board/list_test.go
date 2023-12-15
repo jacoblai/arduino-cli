@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/arduino/go-paths-helper"
@@ -54,8 +55,8 @@ func TestGetByVidPid(t *testing.T) {
 	res, err := apiByVidPid("0xf420", "0XF069")
 	require.Nil(t, err)
 	require.Len(t, res, 1)
-	require.Equal(t, "Arduino/Genuino MKR1000", res[0].GetName())
-	require.Equal(t, "arduino:samd:mkr1000", res[0].GetFqbn())
+	require.Equal(t, "Arduino/Genuino MKR1000", res[0].Name)
+	require.Equal(t, "arduino:samd:mkr1000", res[0].Fqbn)
 
 	// wrong vid (too long), wrong pid (not an hex value)
 	_, err = apiByVidPid("0xfffff", "0xDEFG")
@@ -109,7 +110,7 @@ func TestBoardDetectionViaAPIWithNonUSBPort(t *testing.T) {
 
 func TestBoardIdentifySorting(t *testing.T) {
 	dataDir := paths.TempDir().Join("test", "data_dir")
-	t.Setenv("ARDUINO_DATA_DIR", dataDir.String())
+	os.Setenv("ARDUINO_DATA_DIR", dataDir.String())
 	dataDir.MkdirAll()
 	defer paths.TempDir().Join("test").RemoveAll()
 
@@ -156,8 +157,8 @@ func TestBoardIdentifySorting(t *testing.T) {
 	require.Len(t, res, 4)
 
 	// Verify expected sorting
-	require.Equal(t, res[0].GetFqbn(), "arduino:avr:assurdo")
-	require.Equal(t, res[1].GetFqbn(), "arduino:avr:nessuno")
-	require.Equal(t, res[2].GetFqbn(), "packager:platform:boardA")
-	require.Equal(t, res[3].GetFqbn(), "packager:platform:boardB")
+	require.Equal(t, res[0].Fqbn, "arduino:avr:assurdo")
+	require.Equal(t, res[1].Fqbn, "arduino:avr:nessuno")
+	require.Equal(t, res[2].Fqbn, "packager:platform:boardA")
+	require.Equal(t, res[3].Fqbn, "packager:platform:boardB")
 }

@@ -24,13 +24,12 @@ import (
 	"github.com/jacoblai/arduino-cli/arduino/cores"
 	"github.com/jacoblai/arduino-cli/arduino/utils"
 	"github.com/jacoblai/arduino-cli/commands"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // ListAll FIXMEDOC
 func ListAll(ctx context.Context, req *rpc.BoardListAllRequest) (*rpc.BoardListAllResponse, error) {
-	pme, release := instances.GetPackageManagerExplorer(req.GetInstance())
+	pme, release := commands.GetPackageManagerExplorer(req)
 	if pme == nil {
 		return nil, &arduino.InvalidInstanceError{}
 	}
@@ -47,14 +46,29 @@ func ListAll(ctx context.Context, req *rpc.BoardListAllRequest) (*rpc.BoardListA
 				continue
 			}
 
+			installedVersion := installedPlatformRelease.Version.String()
+
+			latestVersion := ""
+			if latestPlatformRelease := platform.GetLatestRelease(); latestPlatformRelease != nil {
+				latestVersion = latestPlatformRelease.Version.String()
+			}
+
 			rpcPlatform := &rpc.Platform{
-				Metadata: commands.PlatformToRPCPlatformMetadata(platform),
-				Release:  commands.PlatformReleaseToRPC(installedPlatformRelease),
+				Id:                platform.String(),
+				Installed:         installedVersion,
+				Latest:            latestVersion,
+				Name:              platform.Name,
+				Maintainer:        platform.Package.Maintainer,
+				Website:           platform.Package.WebsiteURL,
+				Email:             platform.Package.Email,
+				ManuallyInstalled: platform.ManuallyInstalled,
+				Indexed:           platform.Indexed,
+				MissingMetadata:   !installedPlatformRelease.HasMetadata(),
 			}
 
 			toTest := []string{
 				platform.String(),
-				installedPlatformRelease.Name,
+				platform.Name,
 				platform.Architecture,
 				targetPackage.Name,
 				targetPackage.Maintainer,
@@ -71,7 +85,7 @@ func ListAll(ctx context.Context, req *rpc.BoardListAllRequest) (*rpc.BoardListA
 					continue
 				}
 
-				list.Boards = append(list.GetBoards(), &rpc.BoardListItem{
+				list.Boards = append(list.Boards, &rpc.BoardListItem{
 					Name:     board.Name(),
 					Fqbn:     board.FQBN(),
 					IsHidden: board.IsHidden(),

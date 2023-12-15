@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/channelz
+name: google.golang.org/grpc/inter/channelz
 version: v1.59.0
 type: go
 summary: Package channelz defines APIs for enabling channelz service, entry registration/deletion,

@@ -1,5 +1,5 @@
 ---
-name: google.golang.org/grpc/internal/grpcutil
+name: google.golang.org/grpc/inter/grpcutil
 version: v1.59.0
 type: go
 summary: Package grpcutil provides utility functions used across the gRPC codebase.

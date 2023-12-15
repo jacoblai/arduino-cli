@@ -21,13 +21,13 @@ import (
 	"github.com/arduino/go-paths-helper"
 	"github.com/jacoblai/arduino-cli/arduino"
 	"github.com/jacoblai/arduino-cli/arduino/libraries"
-	"github.com/jacoblai/arduino-cli/commands/internal/instances"
+	"github.com/jacoblai/arduino-cli/commands"
 	rpc "github.com/jacoblai/arduino-cli/rpc/cc/arduino/cli/commands/v1"
 )
 
 // LibraryUninstall FIXMEDOC
 func LibraryUninstall(ctx context.Context, req *rpc.LibraryUninstallRequest, taskCB rpc.TaskProgressCB) error {
-	lm := instances.GetLibraryManager(req.GetInstance())
+	lm := commands.GetLibraryManager(req)
 	ref, err := createLibIndexReference(lm, req)
 	if err != nil {
 		return &arduino.InvalidLibraryError{Cause: err}
@@ -36,7 +36,7 @@ func LibraryUninstall(ctx context.Context, req *rpc.LibraryUninstallRequest, tas
 	libs := lm.FindByReference(ref, libraries.User)
 
 	if len(libs) == 0 {
-		taskCB(&rpc.TaskProgress{Message: tr("Library %s is not installed", req.GetName()), Completed: true})
+		taskCB(&rpc.TaskProgress{Message: tr("Library %s is not installed", req.Name), Completed: true})
 		return nil
 	}
 
